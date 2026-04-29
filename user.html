@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monetra — Evaluación</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ── Reset & tokens ─────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #F2F2F7;
+      --card:     #FFFFFF;
+      --cell:     #F2F2F7;
+      --border:   #E5E5EA;
+      --teal:     #0D9488;
+      --teal-bg:  rgba(13,148,136,0.10);
+      --red:      #F43F5E;
+      --green:    #10B981;
+      --text:     #0D0D12;
+      --muted:    #64748B;
+      --radius:   14px;
+    }
+
+    body {
+      font-family: 'Figtree', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 100px;
+    }
+
+    /* ── Top bar ──────────────────────────────────────────────────────────────── */
+    .topbar {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .topbar-logo {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: var(--teal);
+      letter-spacing: -0.4px;
+    }
+    .topbar-name {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--muted);
+      background: var(--cell);
+      border: 1px solid var(--border);
+      border-radius: 9999px;
+      padding: 4px 12px;
+    }
+
+    /* ── Stepper ─────────────────────────────────────────────────────────────── */
+    .stepper-wrap {
+      max-width: 600px;
+      margin: 24px auto 0;
+      padding: 0 24px;
+    }
+    .stepper {
+      display: flex;
+      align-items: center;
+    }
+    .step-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: var(--card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+      flex-shrink: 0;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .step-dot.done {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #fff;
+    }
+    .step-dot.done::after {
+      content: '✓';
+      font-size: 0.8rem;
+    }
+    .step-dot.done span { display: none; }
+    .step-dot.active {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #fff;
+      box-shadow: 0 0 0 4px var(--teal-bg);
+    }
+    .step-line {
+      flex: 1;
+      height: 2px;
+      background: var(--border);
+      transition: background 0.3s;
+    }
+    .step-line.done { background: var(--teal); }
+    .step-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+    }
+    .step-labels span {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-align: center;
+      width: 32px;
+    }
+
+    /* ── Step content ────────────────────────────────────────────────────────── */
+    .step-content {
+      display: none;
+      max-width: 600px;
+      margin: 24px auto 0;
+      padding: 0 24px;
+    }
+    .step-content.active { display: block; }
+
+    .step-header { margin-bottom: 24px; }
+    .step-eyebrow {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--teal);
+      margin-bottom: 6px;
+    }
+    .step-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.4px;
+      line-height: 1.3;
+    }
+    .step-desc {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.6;
+    }
+
+    /* ── Card ────────────────────────────────────────────────────────────────── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 14px;
+    }
+    .card-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    /* ── Task list (voice) ───────────────────────────────────────────────────── */
+    .task-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--cell);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+      user-select: none;
+    }
+    .task-item:hover { border-color: var(--teal); }
+    .task-item.done { border-color: var(--green); background: rgba(16,185,129,0.06); }
+    .task-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--muted);
+      flex-shrink: 0;
+      margin-top: 1px;
+      transition: all 0.15s;
+    }
+    .task-item.done .task-num { background: var(--green); color: #fff; }
+    .task-num.done-icon::after { content: '✓'; }
+    .task-text { font-size: 0.875rem; line-height: 1.45; color: var(--text); }
+    .task-suggestion {
+      font-size: 0.78rem;
+      color: var(--teal);
+      font-style: italic;
+      margin-top: 3px;
+    }
+
+    /* ── Voice area ──────────────────────────────────────────────────────────── */
+    .voice-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 20px 0 4px;
+    }
+    .mic-btn {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: var(--teal);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 20px rgba(13,148,136,0.28);
+    }
+    .mic-btn:hover { transform: scale(1.05); }
+    .mic-btn:disabled { background: var(--muted); cursor: not-allowed; transform: none; box-shadow: none; }
+    .mic-btn.recording {
+      background: var(--red);
+      box-shadow: 0 0 0 0 rgba(244,63,94,0.4);
+      animation: pulse 1.4s infinite;
+    }
+    .mic-btn.processing { background: var(--muted); cursor: not-allowed; }
+    @keyframes pulse {
+      0%   { box-shadow: 0 0 0 0   rgba(244,63,94,0.45); }
+      70%  { box-shadow: 0 0 0 16px rgba(244,63,94,0); }
+      100% { box-shadow: 0 0 0 0   rgba(244,63,94,0); }
+    }
+    .mic-icon { width: 28px; height: 28px; fill: #fff; }
+    .voice-status { font-size: 0.875rem; font-weight: 600; color: var(--muted); text-align: center; }
+    .voice-status.recording { color: var(--red); }
+    .transcript-preview {
+      font-size: 0.84rem;
+      color: var(--text);
+      text-align: center;
+      font-style: italic;
+      min-height: 18px;
+      padding: 0 12px;
+    }
+
+    /* ── Quick phrase pills ──────────────────────────────────────────────────── */
+    .pills-label { font-size: 0.78rem; color: var(--muted); margin-bottom: 8px; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 7px; }
+    .pill {
+      background: var(--cell);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-family: 'Figtree', sans-serif;
+      padding: 5px 11px;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .pill:hover { border-color: var(--teal); color: var(--teal); }
+
+    /* ── Result card ─────────────────────────────────────────────────────────── */
+    .result-card {
+      background: var(--cell);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 16px;
+      display: none;
+    }
+    .result-card.visible { display: block; }
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .result-row:last-of-type { margin-bottom: 0; }
+    .result-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--muted); }
+    .result-value { font-size: 0.875rem; font-weight: 600; color: var(--text); }
+    .result-amount { color: var(--red); }
+    .result-amount.income { color: var(--green); }
+    .result-error-msg { color: var(--red); font-size: 0.84rem; }
+    .result-actions { display: flex; gap: 8px; margin-top: 14px; }
+    .btn-confirm {
+      flex: 1; padding: 9px;
+      background: var(--teal); color: #fff;
+      border: none; border-radius: 9px;
+      font-size: 0.84rem; font-weight: 600;
+      font-family: 'Figtree', sans-serif;
+      cursor: pointer; transition: opacity 0.15s;
+    }
+    .btn-confirm:hover { opacity: 0.85; }
+    .btn-reject {
+      flex: 1; padding: 9px;
+      background: transparent; color: var(--muted);
+      border: 1px solid var(--border); border-radius: 9px;
+      font-size: 0.84rem; font-weight: 600;
+      font-family: 'Figtree', sans-serif;
+      cursor: pointer; transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-reject:hover { border-color: var(--red); color: var(--red); }
+    .btn-correct {
+      flex: 1; padding: 9px;
+      background: var(--cell); color: var(--text);
+      border: 1px solid var(--border); border-radius: 9px;
+      font-size: 0.84rem; font-weight: 600;
+      font-family: 'Figtree', sans-serif;
+      cursor: pointer; transition: border-color 0.15s;
+    }
+    .btn-correct:hover { border-color: var(--teal); }
+    .btn-correct.recording { border-color: var(--red); color: var(--red); }
+
+    /* ── Transaction list ────────────────────────────────────────────────────── */
+    .tx-list-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .tx-list { list-style: none; }
+    .tx-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.875rem;
+    }
+    .tx-item:last-child { border-bottom: none; }
+    .tx-desc { color: var(--text); }
+    .tx-meta { color: var(--muted); font-size: 0.77rem; margin-top: 1px; }
+    .tx-amount { font-weight: 700; }
+    .tx-amount.expense { color: var(--red); }
+    .tx-amount.income { color: var(--green); }
+    .tx-empty { color: var(--muted); font-size: 0.84rem; text-align: center; padding: 16px 0; }
+
+    /* ── Upload button ───────────────────────────────────────────────────────── */
+    .btn-upload {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 20px;
+      background: var(--teal);
+      color: #fff;
+      font-size: 0.875rem;
+      font-weight: 600;
+      font-family: 'Figtree', sans-serif;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn-upload:hover { opacity: 0.85; }
+
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 20px;
+      background: var(--teal);
+      color: #fff;
+      font-size: 0.875rem;
+      font-weight: 600;
+      font-family: 'Figtree', sans-serif;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn-action:hover { opacity: 0.85; }
+    .btn-action:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: var(--cell);
+      color: var(--text);
+      font-size: 0.875rem;
+      font-weight: 600;
+      font-family: 'Figtree', sans-serif;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .btn-secondary:hover { border-color: var(--teal); }
+    .btn-secondary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .status-text { font-size: 0.84rem; margin-top: 10px; }
+    .status-text.ok { color: var(--green); }
+    .status-text.err { color: var(--red); }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+    /* ── SUS questionnaire ───────────────────────────────────────────────────── */
+    .sus-question {
+      padding: 18px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .sus-question:last-child { border-bottom: none; padding-bottom: 0; }
+    .sus-q-num { font-size: 0.7rem; font-weight: 700; color: var(--teal); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .sus-q-text { font-size: 0.9rem; line-height: 1.55; color: var(--text); margin-bottom: 14px; }
+    .scale-row { display: flex; align-items: center; gap: 8px; }
+    .scale-edge { font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
+    .scale-options { display: flex; gap: 6px; flex: 1; justify-content: center; }
+    .scale-options label { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
+    .scale-options input[type="radio"] { display: none; }
+    .radio-btn {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: var(--cell);
+      border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.82rem; color: var(--muted);
+      transition: all 0.15s;
+    }
+    .scale-options input[type="radio"]:checked + .radio-btn {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #fff;
+    }
+    .scale-options label:hover .radio-btn { border-color: var(--teal); }
+
+    /* ── Checkbox group ──────────────────────────────────────────────────────── */
+    .pref-section-title {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+    .pref-section-title:first-child { margin-top: 0; }
+    .pref-hint { font-size: 0.78rem; color: var(--muted); font-weight: 400; }
+    .checkbox-group { display: flex; flex-direction: column; gap: 7px; }
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      background: var(--cell);
+      border-radius: 10px;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      transition: border-color 0.15s;
+      user-select: none;
+    }
+    .checkbox-item:hover { border-color: var(--teal); }
+    .checkbox-item input[type="checkbox"] { display: none; }
+    .check-box {
+      width: 18px; height: 18px;
+      border-radius: 5px;
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; color: transparent;
+      transition: all 0.15s;
+    }
+    .checkbox-item input:checked ~ .check-box {
+      background: var(--teal); border-color: var(--teal); color: #fff;
+    }
+    .checkbox-label { font-size: 0.875rem; line-height: 1.4; }
+
+    /* ── Radio group (prefs) ─────────────────────────────────────────────────── */
+    .radio-group { display: flex; flex-direction: column; gap: 7px; }
+    .radio-item {
+      padding: 12px 14px;
+      background: var(--cell);
+      border-radius: 10px;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      transition: border-color 0.15s, background 0.15s;
+      user-select: none;
+    }
+    .radio-item:hover { border-color: var(--teal); }
+    .radio-item.selected { border-color: var(--teal); background: var(--teal-bg); }
+    .radio-item-header { display: flex; align-items: center; gap: 10px; }
+    .radio-dot {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+    .radio-item.selected .radio-dot { border-color: var(--teal); background: var(--teal); }
+    .radio-title { font-weight: 600; font-size: 0.875rem; }
+    .radio-sub { color: var(--muted); font-size: 0.8rem; margin-top: 5px; line-height: 1.4; padding-left: 26px; }
+
+    /* ── Submit area ─────────────────────────────────────────────────────────── */
+    .submit-area { margin-top: 28px; }
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      background: var(--teal);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'Figtree', sans-serif;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn-submit:hover { opacity: 0.88; }
+    .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+    .submit-msg { margin-top: 12px; font-size: 0.875rem; text-align: center; }
+    .submit-msg.success { color: var(--green); }
+    .submit-msg.error { color: var(--red); }
+
+    /* ── Bottom nav ──────────────────────────────────────────────────────────── */
+    .nav-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0; right: 0;
+      background: var(--card);
+      border-top: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      z-index: 20;
+    }
+    .btn-back {
+      flex: 1;
+      padding: 12px;
+      background: var(--cell);
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 600;
+      font-family: 'Figtree', sans-serif;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+      max-width: 140px;
+    }
+    .btn-back:hover { border-color: var(--muted); color: var(--text); }
+    .btn-back:disabled { opacity: 0.35; cursor: not-allowed; }
+    .btn-next {
+      flex: 2;
+      padding: 12px;
+      background: var(--teal);
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 700;
+      font-family: 'Figtree', sans-serif;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn-next:hover { opacity: 0.88; }
+
+    /* ── Email drafts ────────────────────────────────────────────────────────── */
+    .email-drafts-wrap { margin-top: 20px; }
+    .small-refresh {
+      margin-top: 10px;
+      padding: 7px 14px;
+      font-family: 'Figtree', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      background: var(--cell);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .small-refresh:hover { border-color: var(--teal); }
+
+    /* ── Misc ────────────────────────────────────────────────────────────────── */
+    .tts-audio { display: none; margin-top: 14px; width: 100%; }
+    .option-label { font-size: 0.875rem; font-weight: 600; margin-bottom: 6px; }
+    .option-desc { font-size: 0.84rem; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="topbar-logo">Monetra</div>
+    <div class="topbar-name" id="participantBadge"></div>
+  </div>
+
+  <!-- Stepper -->
+  <div class="stepper-wrap">
+    <div class="stepper">
+      <div class="step-dot active" id="dot-1"><span>1</span></div>
+      <div class="step-line" id="line-1"></div>
+      <div class="step-dot" id="dot-2"><span>2</span></div>
+      <div class="step-line" id="line-2"></div>
+      <div class="step-dot" id="dot-3"><span>3</span></div>
+      <div class="step-line" id="line-3"></div>
+      <div class="step-dot" id="dot-4"><span>4</span></div>
+      <div class="step-line" id="line-4"></div>
+      <div class="step-dot" id="dot-5"><span>5</span></div>
+    </div>
+    <div class="step-labels">
+      <span>Voz</span>
+      <span>Escaneo</span>
+      <span>Audio</span>
+      <span>Email</span>
+      <span>Opinión</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       PASO 1 — Registro por voz
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="step-content active" id="step-1">
+
+    <div class="step-header">
+      <div class="step-eyebrow">Paso 1 de 5</div>
+      <div class="step-title">Registra tus movimientos por voz</div>
+      <p class="step-desc">Toca el micrófono y dile a la app qué registrar, como si le hablaras a alguien. No hay respuestas incorrectas — queremos ver cómo responde el sistema.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Intenta estas 3 frases</div>
+      <div class="task-list" id="taskList">
+        <div class="task-item" id="task-0" onclick="runTextCommand('gasté 15 mil en almuerzo')">
+          <div class="task-num" id="taskNum-0">1</div>
+          <div>
+            <div class="task-text">Registra un gasto</div>
+            <div class="task-suggestion">"gasté 15 mil en almuerzo"</div>
+          </div>
+        </div>
+        <div class="task-item" id="task-1" onclick="runTextCommand('recibí 200 mil de sueldo')">
+          <div class="task-num" id="taskNum-1">2</div>
+          <div>
+            <div class="task-text">Registra un ingreso</div>
+            <div class="task-suggestion">"recibí 200 mil de sueldo"</div>
+          </div>
+        </div>
+        <div class="task-item" id="task-2" onclick="runTextCommand('le presté 50 mil a Juan')">
+          <div class="task-num" id="taskNum-2">3</div>
+          <div>
+            <div class="task-text">Registra un préstamo</div>
+            <div class="task-suggestion">"le presté 50 mil a Juan"</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="voice-area">
+        <button class="mic-btn" id="micBtn" onclick="toggleRecording()">
+          <svg class="mic-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 1a4 4 0 0 1 4 4v6a4 4 0 0 1-8 0V5a4 4 0 0 1 4-4zm-2 4v6a2 2 0 1 0 4 0V5a2 2 0 1 0-4 0zm-4 6a6 6 0 0 0 12 0h2a8 8 0 0 1-7 7.93V21h2v2H9v-2h2v-2.07A8 8 0 0 1 4 11H6z"/>
+          </svg>
+        </button>
+        <div class="voice-status" id="voiceStatus">Toca para hablar</div>
+        <div class="transcript-preview" id="transcriptPreview"></div>
+      </div>
+
+      <div class="result-card" id="resultCard">
+        <div id="resultContent"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="tx-list-label">Lo que registraste hasta ahora</div>
+      <ul class="tx-list" id="txList">
+        <li class="tx-empty">Nada todavía — intenta una frase de arriba</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Más frases para explorar</div>
+      <div class="pills-label">Tócalas para ejecutarlas directamente:</div>
+      <div class="pill-row">
+        <span class="pill" onclick="runTextCommand('compré 10 mil de queso')">compré 10 mil de queso</span>
+        <span class="pill" onclick="runTextCommand('gasté 30 mil en transporte')">gasté 30 mil en transporte</span>
+        <span class="pill" onclick="runTextCommand('pagué 80 mil de arriendo')">pagué 80 mil de arriendo</span>
+        <span class="pill" onclick="runTextCommand('recibí 50 mil de freelance')">recibí 50 mil de freelance</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       PASO 2 — Escaneo de factura
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="step-content" id="step-2">
+
+    <div class="step-header">
+      <div class="step-eyebrow">Paso 2 de 5</div>
+      <div class="step-title">Escanea una factura o recibo</div>
+      <p class="step-desc">Sube una foto o PDF de cualquier factura, recibo o captura de compra. La app extrae el monto, descripción y categoría de forma automática.</p>
+    </div>
+
+    <div class="card">
+      <input type="file" id="scanFileUser" accept="image/jpeg,image/png,image/webp,image/gif,application/pdf" style="display:none" onchange="runUserScan()">
+      <button class="btn-upload" onclick="document.getElementById('scanFileUser').click()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+        Subir imagen o PDF
+      </button>
+      <div style="margin-top:14px" id="scanUserResult"></div>
+    </div>
+
+    <div class="card" style="border-style:dashed; background: transparent;">
+      <p style="font-size:0.84rem; color:var(--muted); line-height:1.6;">
+        <strong style="color:var(--text)">¿No tienes una factura a mano?</strong><br>
+        Puedes sacarle foto a un recibo de supermercado, una pantalla de Nequi/Bancolombia, o cualquier comprobante de pago. Funciona con JPG, PNG y PDF.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       PASO 3 — Síntesis de voz
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="step-content" id="step-3">
+
+    <div class="step-header">
+      <div class="step-eyebrow">Paso 3 de 5</div>
+      <div class="step-title">Escucha cómo te habla la app</div>
+      <p class="step-desc">Además de entender tu voz, Monetra puede responderte en voz alta con un resumen de tus movimientos. Toca el botón para escuchar una muestra.</p>
+    </div>
+
+    <div class="card">
+      <button class="btn-action" id="ttsBtn" onclick="runTTS()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        Escuchar respuesta de voz
+      </button>
+      <audio class="tts-audio" id="ttsAudio" controls></audio>
+      <div class="status-text" id="ttsStatus"></div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       PASO 4 — Detección por email
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="step-content" id="step-4">
+
+    <div class="step-header">
+      <div class="step-eyebrow">Paso 4 de 5</div>
+      <div class="step-title">Correos bancarios detectados solos</div>
+      <p class="step-desc">Monetra monitorea tu correo y detecta automáticamente los emails de cobros, pagos y transferencias. Elige una de las dos opciones para probarlo.</p>
+    </div>
+
+    <div class="card">
+      <div class="option-label">Opción 1 — Cuenta Gmail de prueba (recomendado)</div>
+      <div class="option-desc">Te asignamos una cuenta Gmail del pool de pruebas. Envíale un email con texto de banco y la app lo detectará sola.</div>
+      <button class="btn-action" id="gmailBtn" onclick="claimGmailAccount()">Obtener cuenta Gmail de prueba</button>
+      <div class="status-text" id="gmailStatus"></div>
+    </div>
+
+    <div class="card">
+      <div class="option-label">Opción 2 — Tu cuenta Outlook / Hotmail</div>
+      <div class="option-desc">Autoriza el acceso para que la app monitoree en tiempo real los emails de transacciones que lleguen a tu bandeja de Outlook.</div>
+      <button class="btn-action" id="outlookBtn" onclick="linkOutlook()">Vincular Outlook / Hotmail</button>
+      <div class="status-text" id="outlookStatus"></div>
+    </div>
+
+    <div class="email-drafts-wrap" id="emailDraftsContainer" style="display:none">
+      <div class="card">
+        <div class="tx-list-label">Emails detectados</div>
+        <ul class="tx-list" id="emailDraftsList"></ul>
+        <button class="small-refresh" onclick="refreshEmailDrafts()">Actualizar</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       PASO 5 — Cuestionario + Preferencias
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="step-content" id="step-5">
+
+    <div class="step-header">
+      <div class="step-eyebrow">Paso 5 de 5 — Último paso</div>
+      <div class="step-title">Tu opinión importa</div>
+      <p class="step-desc">Ya probaste todo. Ahora cuéntanos cómo te fue. No hay respuestas correctas o incorrectas — es sobre tu experiencia real.</p>
+    </div>
+
+    <!-- SUS -->
+    <div class="card">
+      <div class="card-title">¿Qué tan fácil te pareció? (SUS)</div>
+      <p style="font-size:0.84rem;color:var(--muted);margin-bottom:18px;line-height:1.5;">
+        Para cada frase, dinos qué tan de acuerdo estás: <strong>1</strong> = totalmente en desacuerdo, <strong>5</strong> = totalmente de acuerdo.
+      </p>
+      <div id="sus-questions"></div>
+    </div>
+
+    <!-- Feature preferences -->
+    <div class="card">
+      <div class="card-title">¿Qué le agregarías?</div>
+
+      <div class="pref-section-title">Funciones que te gustaría tener <span class="pref-hint">(marca todas las que quieras)</span></div>
+      <div class="checkbox-group">
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" name="feature_manual_entry">
+          <div class="check-box">✓</div>
+          <span class="checkbox-label">Botón de ingreso manual de gastos (sin voz)</span>
+        </label>
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" name="feature_export_csv">
+          <div class="check-box">✓</div>
+          <span class="checkbox-label">Exportar movimientos a Excel / CSV</span>
+        </label>
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" name="feature_loans">
+          <div class="check-box">✓</div>
+          <span class="checkbox-label">Gestión de préstamos y deudas</span>
+        </label>
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" name="feature_budgets">
+          <div class="check-box">✓</div>
+          <span class="checkbox-label">Presupuesto mensual por categoría</span>
+        </label>
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" name="feature_weekly_summary">
+          <div class="check-box">✓</div>
+          <span class="checkbox-label">Resumen automático semanal o mensual</span>
+        </label>
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" name="feature_widget">
+          <div class="check-box">✓</div>
+          <span class="checkbox-label">Widget en pantalla de inicio con el balance del mes</span>
+        </label>
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" name="feature_ai_insights">
+          <div class="check-box">✓</div>
+          <span class="checkbox-label">Análisis de hábitos financieros con recomendaciones</span>
+        </label>
+      </div>
+
+      <hr class="divider">
+
+      <div class="pref-section-title">Préstamos por voz — ¿cómo preferirías que la app los manejara?</div>
+      <div class="radio-group" id="loans-mode-group">
+        <div class="radio-item" onclick="selectRadio('loans_mode', 'automatic', this)">
+          <div class="radio-item-header"><div class="radio-dot"></div><span class="radio-title">Automático</span></div>
+          <div class="radio-sub">La app detecta el nombre por voz y registra el préstamo sola.</div>
+        </div>
+        <div class="radio-item" onclick="selectRadio('loans_mode', 'hybrid', this)">
+          <div class="radio-item-header"><div class="radio-dot"></div><span class="radio-title">Híbrido</span></div>
+          <div class="radio-sub">Detecta el monto pero me pide confirmar o escribir el nombre antes de guardar.</div>
+        </div>
+        <div class="radio-item" onclick="selectRadio('loans_mode', 'manual', this)">
+          <div class="radio-item-header"><div class="radio-dot"></div><span class="radio-title">Manual</span></div>
+          <div class="radio-sub">Prefiero escribir los préstamos en un formulario.</div>
+        </div>
+        <div class="radio-item" onclick="selectRadio('loans_mode', 'not_interested', this)">
+          <div class="radio-item-header"><div class="radio-dot"></div><span class="radio-title">No me interesa esta función</span></div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="pref-section-title">Créditos bancarios — ¿cómo preferirías ver el pago de cuotas?</div>
+      <div class="radio-group" id="credit-mode-group">
+        <div class="radio-item" onclick="selectRadio('credit_mode', 'automatic', this)">
+          <div class="radio-item-header"><div class="radio-dot"></div><span class="radio-title">Automático</span></div>
+          <div class="radio-sub">Configuro la tasa una vez y la app divide sola cada cuota entre capital e intereses.</div>
+        </div>
+        <div class="radio-item" onclick="selectRadio('credit_mode', 'with_confirmation', this)">
+          <div class="radio-item-header"><div class="radio-dot"></div><span class="radio-title">Con confirmación</span></div>
+          <div class="radio-sub">La app me muestra el desglose y yo apruebo antes de guardar.</div>
+        </div>
+        <div class="radio-item" onclick="selectRadio('credit_mode', 'simple', this)">
+          <div class="radio-item-header"><div class="radio-dot"></div><span class="radio-title">Simple</span></div>
+          <div class="radio-sub">Registrar el pago total como gasto, sin dividirlo.</div>
+        </div>
+        <div class="radio-item" onclick="selectRadio('credit_mode', 'not_applicable', this)">
+          <div class="radio-item-header"><div class="radio-dot"></div><span class="radio-title">No tengo créditos / no me interesa</span></div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="pref-section-title">¿Cuál es tu forma preferida para registrar gastos?</div>
+      <div class="radio-group" id="input-pref-group">
+        <div class="radio-item" onclick="selectRadio('input_pref', 'voice_only', this)">
+          <div class="radio-item-header"><div class="radio-dot"></div><span class="radio-title">Solo voz</span></div>
+        </div>
+        <div class="radio-item" onclick="selectRadio('input_pref', 'mostly_voice', this)">
+          <div class="radio-item-header"><div class="radio-dot"></div><span class="radio-title">Principalmente voz, con opción manual de respaldo</span></div>
+        </div>
+        <div class="radio-item" onclick="selectRadio('input_pref', 'half_half', this)">
+          <div class="radio-item-header"><div class="radio-dot"></div><span class="radio-title">Mitad voz, mitad manual</span></div>
+        </div>
+        <div class="radio-item" onclick="selectRadio('input_pref', 'mostly_manual', this)">
+          <div class="radio-item-header"><div class="radio-dot"></div><span class="radio-title">Principalmente manual, con opción de voz</span></div>
+        </div>
+        <div class="radio-item" onclick="selectRadio('input_pref', 'manual_only', this)">
+          <div class="radio-item-header"><div class="radio-dot"></div><span class="radio-title">Solo manual</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="submit-area">
+      <button class="btn-submit" id="submitBtn" onclick="submitForm()">Enviar evaluación</button>
+      <div class="submit-msg" id="statusMsg"></div>
+    </div>
+
+  </div>
+
+  <!-- Bottom nav -->
+  <div class="nav-bar">
+    <button class="btn-back" id="backBtn" onclick="goBack()" disabled>← Anterior</button>
+    <button class="btn-next" id="nextBtn" onclick="goNext()">Siguiente →</button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="js/api.js"></script>
+  <script>
+    // ── Constants ─────────────────────────────────────────────────────────────
+    const SUS_QUESTIONS = [
+      "Creo que me gustaría usar este sistema con frecuencia.",
+      "Encontré el sistema innecesariamente complejo.",
+      "Pensé que el sistema era fácil de usar.",
+      "Creo que necesitaría la ayuda de un técnico para poder usar este sistema.",
+      "Pensé que había demasiada inconsistencia en este sistema.",
+      "Imagino que la mayoría de las personas aprenderían a usar este sistema rápidamente.",
+      "El sistema fue muy incómodo de usar.",
+      "Me sentí muy confiado al usar el sistema.",
+      "Necesité aprender muchas cosas antes de poder empezar a usar este sistema.",
+    ];
+
+    const TYPE_LABELS = {
+      expense: 'Gasto', income: 'Ingreso',
+      loan_given: 'Préstamo dado', loan_received: 'Préstamo recibido',
+      loan_collection: 'Cobro de préstamo', loan_payment: 'Pago de deuda',
+    };
+
+    const radioSelections = {};
+    let currentParsed = null;
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let isRecording = false;
+    let correctionMode = false;
+    let tasksCompleted = [false, false, false];
+
+    // ── Stepper ───────────────────────────────────────────────────────────────
+    const TOTAL_STEPS = 5;
+    let currentStep = 1;
+
+    function showStep(n) {
+      document.querySelectorAll('.step-content').forEach(s => s.classList.remove('active'));
+      document.getElementById('step-' + n).classList.add('active');
+
+      for (let i = 1; i <= TOTAL_STEPS; i++) {
+        const dot = document.getElementById('dot-' + i);
+        dot.classList.remove('active', 'done');
+        if (i < n) dot.classList.add('done');
+        else if (i === n) dot.classList.add('active');
+      }
+      for (let i = 1; i < TOTAL_STEPS; i++) {
+        const line = document.getElementById('line-' + i);
+        line.classList.toggle('done', i < n);
+      }
+
+      currentStep = n;
+      document.getElementById('backBtn').disabled = n === 1;
+      document.getElementById('nextBtn').textContent = n === TOTAL_STEPS ? 'Finalizar ↑' : 'Siguiente →';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function goNext() {
+      if (currentStep < TOTAL_STEPS) showStep(currentStep + 1);
+    }
+
+    function goBack() {
+      if (currentStep > 1) showStep(currentStep - 1);
+    }
+
+    // ── Participant name ──────────────────────────────────────────────────────
+    const participantName = session.getName();
+    if (participantName) {
+      document.getElementById('participantBadge').textContent = participantName;
+    } else {
+      window.location.href = 'index.html';
+    }
+
+    // ── Render SUS questions ──────────────────────────────────────────────────
+    const susContainer = document.getElementById('sus-questions');
+    SUS_QUESTIONS.forEach((q, i) => {
+      const num = i + 1;
+      susContainer.innerHTML += `
+        <div class="sus-question">
+          <div class="sus-q-num">Pregunta ${num} de ${SUS_QUESTIONS.length}</div>
+          <div class="sus-q-text">${q}</div>
+          <div class="scale-row">
+            <span class="scale-edge">En desacuerdo</span>
+            <div class="scale-options">
+              ${[1,2,3,4,5].map(v => `
+                <label>
+                  <input type="radio" name="sus_${num}" value="${v}">
+                  <div class="radio-btn">${v}</div>
+                </label>
+              `).join('')}
+            </div>
+            <span class="scale-edge">De acuerdo</span>
+          </div>
+        </div>`;
+    });
+
+    // ── Pre-load existing transactions ────────────────────────────────────────
+    (async () => {
+      const sessionId = session.getId();
+      if (!sessionId) return;
+      try {
+        const data = await api.getTransactions(sessionId);
+        const txs = data.transactions || data || [];
+        [...txs].reverse().forEach(tx => {
+          const intent = {
+            type: tx.TxType,
+            amount: tx.Amount,
+            description: tx.Description,
+            category_name: tx.CategoryName,
+          };
+          addTxToList(tx.InputText || tx.Description, intent);
+        });
+      } catch (_) {}
+    })();
+
+    // ── Voice recording ───────────────────────────────────────────────────────
+    async function toggleRecording() {
+      if (isRecording) {
+        stopRecording();
+      } else {
+        rejectTx();
+        await startRecording();
+      }
+    }
+
+    async function startRecording() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioChunks = [];
+        const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+          ? 'audio/webm;codecs=opus'
+          : MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '';
+        mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+        mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+        mediaRecorder.onstop = () => { stream.getTracks().forEach(t => t.stop()); processAudio(); };
+        mediaRecorder.start();
+        isRecording = true;
+        setStatus('recording', 'Grabando… toca para terminar');
+      } catch (e) {
+        alert('No se pudo acceder al micrófono. Verifica los permisos del navegador.');
+      }
+    }
+
+    function stopRecording() {
+      if (mediaRecorder && isRecording) {
+        isRecording = false;
+        setStatus('processing', 'Procesando…');
+        mediaRecorder.stop();
+      }
+    }
+
+    async function processAudio() {
+      const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+      try {
+        const { transcript } = await api.transcribe(audioBlob);
+        if (!transcript || !transcript.trim()) {
+          setStatus('idle', 'No se detectó audio. Intenta de nuevo.');
+          if (correctionMode) { correctionMode = false; resetCorrectBtn(); }
+          return;
+        }
+        if (correctionMode && currentParsed) {
+          correctionMode = false;
+          resetCorrectBtn();
+          document.getElementById('transcriptPreview').textContent = `"${transcript}"`;
+          setStatus('processing', 'Aplicando corrección…');
+          const originalText = currentParsed.inputText;
+          const originalIntent = JSON.stringify(currentParsed.result.parsed_intent || {});
+          const correctionText = `Corrección de "${originalText}": ${transcript}`;
+          const result = await api.runLLMBenchmark(correctionText, '', originalText, originalIntent);
+          const combinedText = originalText + ' → ' + transcript;
+          showResult(combinedText, result);
+          currentParsed.inputText = combinedText;
+        } else {
+          document.getElementById('transcriptPreview').textContent = `"${transcript}"`;
+          setStatus('processing', 'Clasificando…');
+          const result = await api.runLLMBenchmark(transcript);
+          showResult(transcript, result);
+        }
+      } catch (e) {
+        correctionMode = false;
+        resetCorrectBtn();
+        setStatus('idle', 'Error: ' + e.message);
+      }
+    }
+
+    function startCorrection() {
+      if (isRecording) return;
+      correctionMode = true;
+      const btn = document.getElementById('correctBtn');
+      if (btn) { btn.textContent = 'Grabando… toca para terminar'; btn.classList.add('recording'); }
+      startRecording();
+    }
+
+    function resetCorrectBtn() {
+      const btn = document.getElementById('correctBtn');
+      if (btn) { btn.textContent = 'Corregir'; btn.classList.remove('recording'); }
+    }
+
+    async function runTextCommand(text) {
+      if (isRecording) return;
+      document.getElementById('transcriptPreview').textContent = `"${text}"`;
+      setStatus('processing', 'Clasificando…');
+      rejectTx();
+      try {
+        const result = await api.runLLMBenchmark(text);
+        showResult(text, result);
+      } catch (e) {
+        setStatus('idle', 'Error: ' + e.message);
+      }
+    }
+
+    function setStatus(state, text) {
+      const btn = document.getElementById('micBtn');
+      const status = document.getElementById('voiceStatus');
+      btn.className = 'mic-btn' + (state === 'recording' ? ' recording' : state === 'processing' ? ' processing' : '');
+      btn.disabled = state === 'processing';
+      status.className = 'voice-status' + (state === 'recording' ? ' recording' : '');
+      status.textContent = text;
+    }
+
+    function showResult(inputText, result) {
+      setStatus('idle', 'Toca para hablar');
+      const card = document.getElementById('resultCard');
+      card.className = 'result-card visible';
+      currentParsed = { result, inputText };
+
+      if (!result.success) {
+        document.getElementById('resultContent').innerHTML = `<div class="result-error-msg">${result.error || 'El sistema no pudo interpretar el comando.'}</div>`;
+        return;
+      }
+
+      const intent = result.parsed_intent || {};
+      const isIncome = ['income', 'loan_received', 'loan_collection'].includes(intent.type);
+      const amountFmt = intent.amount ? `$${Number(intent.amount).toLocaleString('es-CO')}` : '—';
+
+      document.getElementById('resultContent').innerHTML = `
+        <div class="result-row">
+          <span class="result-label">Tipo</span>
+          <span class="result-value">${TYPE_LABELS[intent.type] || intent.type || '—'}</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">Monto</span>
+          <span class="result-value result-amount ${isIncome ? 'income' : ''}">${isIncome ? '+' : '-'}${amountFmt}</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">Descripción</span>
+          <span class="result-value">${intent.description || '—'}</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">Categoría</span>
+          <span class="result-value">${intent.category_name || '—'}</span>
+        </div>
+        <div class="result-actions">
+          <button class="btn-confirm" onclick="confirmTx()">Confirmar</button>
+          <button class="btn-correct" id="correctBtn" onclick="startCorrection()">Corregir</button>
+          <button class="btn-reject" onclick="rejectTx()">Rechazar</button>
+        </div>`;
+    }
+
+    async function confirmTx() {
+      if (!currentParsed) return;
+      const sessionId = session.getId();
+      const intent = currentParsed.result.parsed_intent || {};
+      try {
+        await api.saveTransaction(sessionId, {
+          input_text: currentParsed.inputText,
+          tx_type: intent.type || '',
+          amount: intent.amount || 0,
+          description: intent.description || '',
+          category_name: intent.category_name || '',
+          parsed_intent: JSON.stringify(intent),
+        });
+        addTxToList(currentParsed.inputText, intent);
+        markTaskDone(currentParsed.inputText);
+        rejectTx();
+        document.getElementById('transcriptPreview').textContent = '';
+      } catch (e) {
+        alert('Error al guardar. Verifica la conexión con el servidor.');
+      }
+    }
+
+    function markTaskDone(inputText) {
+      const lower = inputText.toLowerCase();
+      // Mark task based on type keywords
+      if (!tasksCompleted[0] && (lower.includes('gasté') || lower.includes('compré') || lower.includes('pagué'))) {
+        tasksCompleted[0] = true;
+        setTaskDone(0);
+      } else if (!tasksCompleted[1] && (lower.includes('recibí') || lower.includes('ingres'))) {
+        tasksCompleted[1] = true;
+        setTaskDone(1);
+      } else if (!tasksCompleted[2] && (lower.includes('presté') || lower.includes('préstamo'))) {
+        tasksCompleted[2] = true;
+        setTaskDone(2);
+      }
+    }
+
+    function setTaskDone(idx) {
+      const item = document.getElementById('task-' + idx);
+      const num = document.getElementById('taskNum-' + idx);
+      if (item) item.classList.add('done');
+      if (num) { num.classList.add('done-icon'); num.textContent = ''; }
+    }
+
+    function rejectTx() {
+      document.getElementById('resultCard').className = 'result-card';
+      document.getElementById('resultContent').innerHTML = '';
+      currentParsed = null;
+      correctionMode = false;
+      resetCorrectBtn();
+    }
+
+    function addTxToList(inputText, intent) {
+      const list = document.getElementById('txList');
+      const empty = list.querySelector('.tx-empty');
+      if (empty) empty.remove();
+      const isIncome = ['income', 'loan_received', 'loan_collection'].includes(intent.type);
+      const amountFmt = intent.amount ? `$${Number(intent.amount).toLocaleString('es-CO')}` : '—';
+      const li = document.createElement('li');
+      li.className = 'tx-item';
+      li.innerHTML = `
+        <div>
+          <div class="tx-desc">${intent.description || inputText}</div>
+          <div class="tx-meta">${TYPE_LABELS[intent.type] || intent.type || '—'} · ${intent.category_name || '—'}</div>
+        </div>
+        <div class="tx-amount ${isIncome ? 'income' : 'expense'}">${isIncome ? '+' : '-'}${amountFmt}</div>`;
+      list.prepend(li);
+    }
+
+    // ── Preferences ───────────────────────────────────────────────────────────
+    function toggleCheck(el) {
+      const cb = el.querySelector('input[type="checkbox"]');
+      cb.checked = !cb.checked;
+    }
+
+    function selectRadio(groupKey, value, el) {
+      const groupId = groupKey === 'loans_mode' ? 'loans-mode-group'
+                    : groupKey === 'credit_mode' ? 'credit-mode-group'
+                    : 'input-pref-group';
+      document.querySelectorAll('#' + groupId + ' .radio-item').forEach(r => r.classList.remove('selected'));
+      el.classList.add('selected');
+      radioSelections[groupKey] = value;
+    }
+
+    // ── Scan ──────────────────────────────────────────────────────────────────
+    async function pdfToImageBlobs(file) {
+      const pdfjsLib = window['pdfjs-dist/build/pdf'];
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const pageCount = Math.min(pdf.numPages, 5);
+      const blobs = [];
+      for (let i = 1; i <= pageCount; i++) {
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 2.0 });
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width; canvas.height = viewport.height;
+        await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+        const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.85));
+        blobs.push(blob);
+      }
+      return blobs;
+    }
+
+    async function runUserScan() {
+      const input = document.getElementById('scanFileUser');
+      const file = input.files[0];
+      if (!file) return;
+      const el = document.getElementById('scanUserResult');
+      el.innerHTML = '<div class="status-text">Procesando…</div>';
+
+      try {
+        const formData = new FormData();
+        if (file.type === 'application/pdf') {
+          el.innerHTML = '<div class="status-text">Convirtiendo PDF a imágenes…</div>';
+          const blobs = await pdfToImageBlobs(file);
+          if (!blobs.length) throw new Error('No se pudo leer el PDF.');
+          blobs.forEach((b, i) => formData.append('file', b, `page_${i+1}.jpg`));
+        } else {
+          formData.append('file', file);
+        }
+        el.innerHTML = '<div class="status-text">Analizando imagen…</div>';
+        const data = await api.scanInvoice(formData);
+        const intent = (data.parsed_intents && data.parsed_intents[0]) || data.parsed_intent || {};
+        if (data.success && intent.type) {
+          const isIncome = ['income','loan_received','loan_collection'].includes(intent.type);
+          const amountFmt = intent.amount ? `$${Number(intent.amount).toLocaleString('es-CO')}` : '—';
+          el.innerHTML = `
+            <div class="result-card visible">
+              <div class="result-row"><span class="result-label">Tipo</span><span class="result-value">${TYPE_LABELS[intent.type] || intent.type || '—'}</span></div>
+              <div class="result-row"><span class="result-label">Monto</span><span class="result-value result-amount ${isIncome ? 'income' : ''}">${isIncome?'+':'-'}${amountFmt}</span></div>
+              <div class="result-row"><span class="result-label">Descripción</span><span class="result-value">${intent.description || '—'}</span></div>
+              <div class="result-row"><span class="result-label">Categoría</span><span class="result-value">${intent.category_name || '—'}</span></div>
+            </div>`;
+        } else {
+          el.innerHTML = `<div class="status-text err">${data.error || 'No se detectó ninguna transacción en la imagen.'}</div>`;
+        }
+      } catch (e) {
+        el.innerHTML = `<div class="status-text err">Error: ${e.message}</div>`;
+      }
+      input.value = '';
+    }
+
+    // ── TTS ───────────────────────────────────────────────────────────────────
+    async function runTTS() {
+      const btn = document.getElementById('ttsBtn');
+      const status = document.getElementById('ttsStatus');
+      btn.disabled = true;
+      btn.textContent = 'Generando audio…';
+      status.textContent = '';
+      const text = 'Hola. Aquí va el resumen de tus movimientos del día. Registraste tres gastos por un total de ciento cincuenta mil pesos colombianos. Tu balance del mes es positivo.';
+      try {
+        const blob = await api.tts(text);
+        const url = URL.createObjectURL(blob);
+        const audio = document.getElementById('ttsAudio');
+        audio.src = url;
+        audio.style.display = 'block';
+        audio.play();
+        status.className = 'status-text ok';
+        status.textContent = 'Reproduciendo respuesta sintetizada.';
+      } catch (e) {
+        status.className = 'status-text err';
+        status.textContent = 'Error al generar audio: ' + e.message;
+      }
+      btn.disabled = false;
+      btn.textContent = 'Escuchar respuesta de voz';
+    }
+
+    // ── Email ─────────────────────────────────────────────────────────────────
+    async function claimGmailAccount() {
+      const sessionId = session.getId();
+      if (!sessionId) { alert('Sesión no encontrada. Vuelve al inicio.'); return; }
+      const btn = document.getElementById('gmailBtn');
+      const status = document.getElementById('gmailStatus');
+      btn.disabled = true;
+      btn.textContent = 'Solicitando…';
+      try {
+        const data = await api.claimGmail(sessionId);
+        status.className = 'status-text ok';
+        status.textContent = `Cuenta asignada: ${data.email_address} — Envíale un email de banco a esta dirección.`;
+        document.getElementById('emailDraftsContainer').style.display = 'block';
+        btn.textContent = `Gmail: ${data.email_address}`;
+      } catch (e) {
+        status.className = 'status-text err';
+        status.textContent = 'Error: ' + e.message;
+        btn.disabled = false;
+        btn.textContent = 'Obtener cuenta Gmail de prueba';
+      }
+    }
+
+    async function linkOutlook() {
+      const sessionId = session.getId();
+      if (!sessionId) { alert('Sesión no encontrada. Vuelve al inicio.'); return; }
+      const btn = document.getElementById('outlookBtn');
+      const status = document.getElementById('outlookStatus');
+      btn.disabled = true;
+      btn.textContent = 'Redirigiendo…';
+      try {
+        const data = await api.startOutlookOAuth(sessionId);
+        status.textContent = 'Abriendo autorización de Microsoft…';
+        window.open(data.auth_url, '_blank');
+        btn.textContent = 'Vinculación iniciada';
+        document.getElementById('emailDraftsContainer').style.display = 'block';
+      } catch (e) {
+        status.className = 'status-text err';
+        status.textContent = 'Error: ' + e.message;
+        btn.disabled = false;
+        btn.textContent = 'Vincular Outlook / Hotmail';
+      }
+    }
+
+    async function refreshEmailDrafts() {
+      const sessionId = session.getId();
+      if (!sessionId) return;
+      try {
+        const data = await api.getEmailDrafts(sessionId);
+        const drafts = data.drafts || [];
+        const list = document.getElementById('emailDraftsList');
+        if (!drafts.length) { list.innerHTML = '<li class="tx-empty">Ningún email detectado todavía.</li>'; return; }
+        list.innerHTML = drafts.map(d => {
+          const amountFmt = d.Amount ? `$${Number(d.Amount).toLocaleString('es-CO')}` : '—';
+          const isIncome = ['income','loan_received','loan_collection'].includes(d.TxType);
+          return `<li class="tx-item">
+            <div>
+              <div class="tx-desc">${d.Subject || d.Description || '(sin asunto)'}</div>
+              <div class="tx-meta">${d.FromAddress || '—'} · ${TYPE_LABELS[d.TxType] || d.TxType || '—'}</div>
+            </div>
+            <div class="tx-amount ${isIncome?'income':'expense'}">${isIncome?'+':'-'}${amountFmt}</div>
+          </li>`;
+        }).join('');
+      } catch (e) {
+        document.getElementById('emailDraftsList').innerHTML = `<li class="tx-empty" style="color:var(--red)">Error: ${e.message}</li>`;
+      }
+    }
+
+    // Check if returning from Outlook OAuth callback
+    (function checkOAuthReturn() {
+      const params = new URLSearchParams(window.location.search);
+      const status = params.get('status');
+      const provider = params.get('provider');
+      const email = params.get('email');
+      if (status === 'success' && provider === 'outlook' && email) {
+        document.getElementById('outlookStatus').className = 'status-text ok';
+        document.getElementById('outlookStatus').textContent = `Outlook vinculado: ${email} — Los emails de esta cuenta serán detectados automáticamente.`;
+        document.getElementById('outlookBtn').textContent = `Outlook: ${email}`;
+        document.getElementById('outlookBtn').disabled = true;
+        document.getElementById('emailDraftsContainer').style.display = 'block';
+        window.history.replaceState({}, '', window.location.pathname);
+      }
+    })();
+
+    // ── Submit ────────────────────────────────────────────────────────────────
+    async function submitForm() {
+      const sessionId = session.getId();
+      if (!sessionId) { alert('Sesión no encontrada. Vuelve al inicio.'); return; }
+
+      const susResponses = [];
+      for (let i = 1; i <= 9; i++) {
+        const val = document.querySelector(`input[name="sus_${i}"]:checked`);
+        if (!val) {
+          alert(`Por favor responde la pregunta ${i} del cuestionario de usabilidad.`);
+          showStep(5);
+          return;
+        }
+        susResponses.push({ question_key: `sus_${i}`, score: parseInt(val.value), comment: '' });
+      }
+
+      const featureKeys = ['feature_manual_entry','feature_export_csv','feature_loans','feature_budgets','feature_weekly_summary','feature_widget','feature_ai_insights'];
+      const featureResponses = featureKeys.map(k => ({
+        question_key: k, score: document.querySelector(`input[name="${k}"]`)?.checked ? 1 : 0, comment: ''
+      }));
+
+      const radioKeys = ['loans_mode', 'credit_mode', 'input_pref'];
+      const radioResponses = radioKeys.map(k => ({
+        question_key: k, score: radioSelections[k] ? 1 : 0, comment: radioSelections[k] || 'no_response'
+      }));
+
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Enviando…';
+
+      try {
+        await api.submitSurvey(sessionId, [...susResponses, ...featureResponses, ...radioResponses]);
+        document.getElementById('statusMsg').className = 'submit-msg success';
+        document.getElementById('statusMsg').textContent = '¡Evaluación enviada! Muchas gracias por tu tiempo.';
+        btn.textContent = 'Enviado ✓';
+        document.getElementById('nextBtn').style.display = 'none';
+        session.clear();
+      } catch (e) {
+        document.getElementById('statusMsg').className = 'submit-msg error';
+        document.getElementById('statusMsg').textContent = 'Error al enviar. Intenta de nuevo.';
+        btn.disabled = false;
+        btn.textContent = 'Enviar evaluación';
+      }
+    }
+  </script>
+</body>
+</html>

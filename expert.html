@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monetra — Evaluación de Experto</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Figtree', -apple-system, sans-serif;
+      background: #F2F2F7;
+      color: #0D0D12;
+      padding: 24px;
+    }
+    .container { max-width: 700px; margin: 0 auto; }
+    .header { margin-bottom: 28px; }
+    .wordmark { font-size: 0.85rem; font-weight: 700; color: #0D9488; letter-spacing: -0.2px; margin-bottom: 12px; }
+    .header h1 { font-size: 1.35rem; font-weight: 700; }
+    .header p { color: #64748B; margin-top: 5px; font-size: 0.875rem; line-height: 1.5; }
+    .badge {
+      display: inline-block;
+      background: #EEEEEF;
+      color: #64748B;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 9999px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .section {
+      border: 1px solid #E5E5EA;
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 16px;
+      background: #FFFFFF;
+    }
+    .section-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #0D9488;
+      margin-bottom: 4px;
+    }
+    .section h2 { font-size: 1rem; font-weight: 700; color: #0D0D12; margin-bottom: 6px; }
+    .section .desc { color: #64748B; font-size: 0.84rem; margin-bottom: 20px; line-height: 1.5; }
+    .criterion {
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid #E5E5EA;
+    }
+    .criterion:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+    .crit-title { font-weight: 700; font-size: 0.9rem; color: #e2e8f0; margin-bottom: 4px; }
+    .crit-desc { color: #64748B; font-size: 0.8rem; margin-bottom: 14px; line-height: 1.4; }
+    .scale-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .scale-label { font-size: 0.72rem; color: #64748B; white-space: nowrap; width: 84px; }
+    .scale-label.right { text-align: right; }
+    .scale-options { display: flex; gap: 8px; flex: 1; justify-content: center; }
+    .scale-options label { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
+    .scale-options input[type="radio"] { display: none; }
+    .radio-btn {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: #F2F2F7;
+      border: 1px solid #E5E5EA;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.875rem;
+      color: #64748B;
+      transition: all 0.15s;
+    }
+    .scale-options input[type="radio"]:checked + .radio-btn { background: #0D9488; border-color: #0D9488; color: #fff; }
+    .scale-options label:hover .radio-btn { border-color: #0D9488; }
+    .no-score-row { margin-bottom: 12px; }
+    .no-score-row input[type="radio"] { display: none; }
+    .no-score-btn {
+      display: inline-block;
+      padding: 5px 14px;
+      background: #F2F2F7;
+      border: 1px solid #E5E5EA;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      color: #64748B;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .no-score-row input[type="radio"]:checked + .no-score-btn {
+      background: #F0FDFA;
+      border-color: #0D9488;
+      color: #0D9488;
+      font-weight: 600;
+    }
+    .no-score-row label:hover .no-score-btn { border-color: #0D9488; }
+    textarea {
+      width: 100%;
+      padding: 11px 13px;
+      background: #F2F2F7;
+      border: 1px solid #E5E5EA;
+      border-radius: 10px;
+      color: #0D0D12;
+      font-size: 0.84rem;
+      font-family: 'Figtree', sans-serif;
+      resize: vertical;
+      min-height: 72px;
+      transition: border-color 0.15s;
+    }
+    textarea:focus { outline: none; border-color: #0D9488; }
+    textarea::placeholder { color: #94a3b8; }
+    .overall-section textarea { min-height: 110px; }
+    .submit-area { margin-top: 24px; text-align: center; }
+    .btn-submit {
+      padding: 13px 44px;
+      background: #0D9488;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: 'Figtree', sans-serif;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn-submit:hover { opacity: 0.88; }
+    .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+    .msg { margin-top: 14px; font-size: 0.875rem; }
+    .msg.success { color: #10B981; }
+    .msg.error { color: #F43F5E; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="wordmark">Monetra</div>
+      <h1>Evaluación de experto <span class="badge" id="userName"></span></h1>
+      <p>Evalúa cada criterio del 1 (Muy deficiente) al 5 (Excelente). Agrega comentarios cuando sea relevante.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Rúbrica</div>
+      <h2>Criterios de evaluación</h2>
+      <p class="desc">Evalúa cada criterio de forma independiente después de interactuar con la app.</p>
+      <div id="criteria-container"></div>
+    </div>
+
+    <div class="section overall-section">
+      <div class="section-title">General</div>
+      <h2>Evaluación general</h2>
+      <p class="desc">Fortalezas, debilidades y recomendaciones globales.</p>
+      <textarea id="overall-comment" placeholder="Escribe tu evaluación general aquí…"></textarea>
+    </div>
+
+    <div class="submit-area">
+      <button class="btn-submit" id="submitBtn" onclick="submitForm()">Enviar evaluación</button>
+      <div class="msg" id="statusMsg"></div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    const CRITERIA = [
+      {
+        key: 'expert_stt',
+        title: 'Precisión del reconocimiento de voz (STT)',
+        desc: 'Qué tan bien el sistema transcribe el habla colombiana: jerga financiera, "lucas", "billete", nombres propios, cantidades como "cincuenta mil".',
+        minLabel: 'Muy impreciso',
+        maxLabel: 'Muy preciso',
+      },
+      {
+        key: 'expert_llm',
+        title: 'Coherencia de la clasificación financiera',
+        desc: 'Si el sistema interpreta correctamente las intenciones: distingue gastos de ingresos, préstamos de pagos, categoriza adecuadamente y extrae montos con precisión.',
+        minLabel: 'Muy incoherente',
+        maxLabel: 'Muy coherente',
+      },
+      {
+        key: 'expert_ux',
+        title: 'Claridad del flujo de confirmación',
+        desc: 'Si el usuario entiende qué reconoció la app, puede confirmar o corregir antes de guardar, y si el diseño de la pantalla de revisión es intuitivo.',
+        minLabel: 'Muy confuso',
+        maxLabel: 'Muy claro',
+      },
+      {
+        key: 'expert_context',
+        title: 'Adecuación al contexto colombiano',
+        desc: 'Si la app se adapta a la realidad financiera colombiana: moneda COP, servicios como Nu y Bancolombia, vocabulario local y patrones de gasto.',
+        minLabel: 'Poco adecuada',
+        maxLabel: 'Muy adecuada',
+      },
+      {
+        key: 'expert_tech',
+        title: 'Viabilidad técnica de la arquitectura',
+        desc: 'Solidez del pipeline voz→STT→clasificación→DB, seguridad con Firebase+JWT, manejo de errores, latencia y escalabilidad del diseño.',
+        minLabel: 'Inviable',
+        maxLabel: 'Muy sólida',
+      },
+      {
+        key: 'expert_value',
+        title: 'Valor e innovación para el usuario final',
+        desc: 'Impacto potencial para ayudar a llevar control financiero, innovación del enfoque conversacional y diferenciación frente a apps existentes.',
+        minLabel: 'Bajo valor',
+        maxLabel: 'Alto valor',
+      },
+      {
+        key: 'expert_email',
+        title: 'Detección automática por email',
+        desc: 'Efectividad del pipeline que monitorea la bandeja de correo (Outlook/Gmail) para detectar transacciones bancarias, pagos y cobros sin intervención del usuario.',
+        minLabel: 'Muy deficiente',
+        maxLabel: 'Muy efectiva',
+      },
+      {
+        key: 'expert_scan',
+        title: 'Precisión del escaneo de facturas',
+        desc: 'Qué tan bien el sistema extrae monto, descripción y categoría a partir de imágenes de facturas y recibos (OCR + parsing de intención).',
+        minLabel: 'Muy impreciso',
+        maxLabel: 'Muy preciso',
+      },
+    ];
+
+    const container = document.getElementById('criteria-container');
+    CRITERIA.forEach(c => {
+      container.innerHTML += `
+        <div class="criterion">
+          <div class="crit-title">${c.title}</div>
+          <div class="crit-desc">${c.desc}</div>
+          <div class="scale-row">
+            <span class="scale-label">${c.minLabel}</span>
+            <div class="scale-options">
+              ${[1,2,3,4,5].map(v => `
+                <label>
+                  <input type="radio" name="${c.key}" value="${v}">
+                  <div class="radio-btn">${v}</div>
+                </label>
+              `).join('')}
+            </div>
+            <span class="scale-label right">${c.maxLabel}</span>
+          </div>
+          <div class="no-score-row">
+            <label>
+              <input type="radio" name="${c.key}" value="0">
+              <span class="no-score-btn">No lo tengo claro</span>
+            </label>
+          </div>
+          <textarea placeholder="Comentario opcional…" id="comment_${c.key}"></textarea>
+        </div>`;
+    });
+
+    const name = session.getName();
+    if (name) document.getElementById('userName').textContent = name;
+    else window.location.href = 'index.html';
+
+    async function submitForm() {
+      const sessionId = session.getId();
+      if (!sessionId) { alert('Sesión no encontrada. Vuelve al inicio.'); return; }
+
+      const responses = [];
+      for (const c of CRITERIA) {
+        const val = document.querySelector(`input[name="${c.key}"]:checked`);
+        if (!val) { alert(`Por favor evalúa el criterio "${c.title}".`); return; }
+        responses.push({
+          question_key: c.key,
+          score: parseInt(val.value),
+          comment: document.getElementById(`comment_${c.key}`).value.trim(),
+        });
+      }
+      const overall = document.getElementById('overall-comment').value.trim();
+      if (overall) responses.push({ question_key: 'expert_overall', score: 0, comment: overall });
+
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Enviando…';
+
+      try {
+        await api.submitSurvey(sessionId, responses);
+        document.getElementById('statusMsg').className = 'msg success';
+        document.getElementById('statusMsg').textContent = 'Evaluación enviada. Muchas gracias.';
+        btn.textContent = 'Enviado';
+        session.clear();
+      } catch (e) {
+        document.getElementById('statusMsg').className = 'msg error';
+        document.getElementById('statusMsg').textContent = 'Error al enviar. Intenta de nuevo.';
+        btn.disabled = false;
+        btn.textContent = 'Enviar evaluación';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monetra — Benchmarking Técnico</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Figtree', -apple-system, sans-serif;
+      background: #F2F2F7;
+      color: #0D0D12;
+      padding: 24px;
+    }
+    .container { max-width: 1080px; margin: 0 auto; }
+    .header { margin-bottom: 28px; }
+    .wordmark { font-size: 0.85rem; font-weight: 700; color: #0D9488; letter-spacing: -0.2px; margin-bottom: 12px; }
+    .header h1 { font-size: 1.35rem; font-weight: 700; }
+    .header p { color: #64748B; margin-top: 5px; font-size: 0.875rem; }
+    .badge {
+      display: inline-block;
+      background: #EEEEEF;
+      color: #64748B;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 9999px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .section {
+      border: 1px solid #E5E5EA;
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 16px;
+      background: #FFFFFF;
+    }
+    .section-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #0D9488;
+      margin-bottom: 4px;
+    }
+    .section h2 { font-size: 1rem; font-weight: 700; color: #0D0D12; margin-bottom: 6px; }
+    .section .desc { color: #64748B; font-size: 0.84rem; margin-bottom: 18px; line-height: 1.5; }
+    .btn-run {
+      padding: 11px 22px;
+      background: #0D9488;
+      color: #fff;
+      font-size: 0.875rem;
+      font-weight: 600;
+      font-family: 'Figtree', sans-serif;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn-run:hover { opacity: 0.88; }
+    .btn-run:disabled { opacity: 0.4; cursor: not-allowed; }
+    /* Health card */
+    .health-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px;
+      background: #F2F2F7;
+      border-radius: 10px;
+      border: 1px solid #E5E5EA;
+      margin-top: 14px;
+    }
+    .health-dot { width: 10px; height: 10px; border-radius: 50%; background: #EEEEEF; flex-shrink: 0; }
+    .health-dot.ok { background: #10B981; }
+    .health-dot.error { background: #F43F5E; }
+    /* Provider tags */
+    .providers-grid { display: flex; gap: 10px; margin-bottom: 4px; flex-wrap: wrap; }
+    .provider-tag {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 13px;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border: 1px solid #E5E5EA;
+      background: #F2F2F7;
+    }
+    .provider-tag .dot { width: 7px; height: 7px; border-radius: 50%; }
+    /* Progress */
+    .progress-bar { width: 100%; height: 3px; background: #EEEEEF; border-radius: 2px; margin-bottom: 18px; overflow: hidden; }
+    .progress-fill { height: 100%; background: #0D9488; transition: width 0.3s; width: 0%; }
+    /* Summary grid */
+    .summary-outer { display: grid; gap: 14px; margin-bottom: 18px; }
+    .provider-summary {
+      background: #F2F2F7;
+      border-radius: 12px;
+      padding: 18px;
+      border: 1px solid #E5E5EA;
+    }
+    .provider-summary h3 { font-size: 0.875rem; font-weight: 700; margin-bottom: 12px; }
+    .stats-row { display: flex; gap: 20px; flex-wrap: wrap; }
+    .stat { }
+    .stat-val { font-size: 1.5rem; font-weight: 700; }
+    .stat-label { font-size: 0.68rem; color: #64748B; margin-top: 1px; text-transform: uppercase; letter-spacing: 0.3px; }
+    /* Results table */
+    .comparison-table { width: 100%; border-collapse: collapse; font-size: 0.81rem; }
+    .comparison-table th {
+      text-align: left;
+      padding: 9px 12px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #64748B;
+      border-bottom: 1px solid #1E1E28;
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .comparison-table td { padding: 10px 12px; border-bottom: 1px solid #E5E5EA; vertical-align: top; }
+    .comparison-table tr:last-child td { border-bottom: none; }
+    .badge-ok { color: #10B981; font-weight: 700; }
+    .badge-err { color: #F43F5E; font-weight: 700; }
+    .badge-pending { color: #334155; font-size: 0.78rem; }
+    .provider-cell { background: #F2F2F7; border-radius: 8px; padding: 8px 10px; border: 1px solid #E5E5EA; }
+    .intent-line { font-family: monospace; font-size: 0.72rem; color: #64748B; margin-top: 4px; }
+    .latency-chip {
+      display: inline-block;
+      background: #EEEEEF;
+      border-radius: 6px;
+      padding: 2px 7px;
+      font-size: 0.72rem;
+      margin-top: 4px;
+      color: #64748B;
+    }
+    .winner-chip {
+      display: inline-block;
+      font-size: 0.68rem;
+      padding: 1px 6px;
+      border-radius: 9999px;
+      margin-left: 6px;
+      font-weight: 700;
+      background: #0D948820;
+      color: #0D9488;
+    }
+    /* Save */
+    .footer-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 16px; }
+    .save-btn {
+      padding: 11px 22px;
+      background: #EEEEEF;
+      color: #64748B;
+      font-size: 0.875rem;
+      font-weight: 600;
+      font-family: 'Figtree', sans-serif;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .save-btn:hover:not(:disabled) { background: #334155; color: #0D0D12; }
+    .save-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .msg { font-size: 0.84rem; }
+    .msg.success { color: #10B981; }
+    .msg.error { color: #F43F5E; }
+    .no-providers { color: #F43F5E; padding: 10px; background: #F43F5E10; border-radius: 8px; font-size: 0.84rem; border: 1px solid #F43F5E22; }
+    code { font-family: monospace; font-size: 0.82em; background: #EEEEEF; padding: 1px 5px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="wordmark">Monetra</div>
+      <h1>Benchmarking técnico <span class="badge" id="userName"></span></h1>
+      <p>Comparativa automática de precisión y latencia entre los proveedores configurados.</p>
+    </div>
+
+    <!-- Health check -->
+    <div class="section">
+      <div class="section-title">Conectividad</div>
+      <h2>Estado del servidor</h2>
+      <p class="desc">Verifica que el backend y los proveedores están disponibles antes de correr las pruebas.</p>
+      <button class="btn-run" onclick="checkHealth()">Verificar conexión</button>
+      <div id="health-result"></div>
+    </div>
+
+    <!-- Providers -->
+    <div class="section">
+      <div class="section-title">Configuración</div>
+      <h2>Proveedores configurados</h2>
+      <p class="desc">Se configuran con las variables <code>INSTRUMENT_*</code> del backend.</p>
+      <div class="providers-grid" id="providersGrid"><span style="color:#64748b;font-size:0.84rem">Cargando…</span></div>
+    </div>
+
+    <!-- LLM Benchmark -->
+    <div class="section">
+      <div class="section-title">Prueba principal</div>
+      <h2>Clasificación de frases — comparativa multi-proveedor</h2>
+      <p class="desc">10 frases en español colombiano enviadas a cada proveedor en paralelo. Cada fila compara latencia y precisión entre modelos.</p>
+
+      <button class="btn-run" id="runBtn" onclick="runBenchmark()">Iniciar comparativa</button>
+
+      <div style="margin-top:20px">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div id="summaryArea"></div>
+        <div id="tableArea" style="overflow-x:auto"></div>
+      </div>
+    </div>
+
+    <!-- STT Benchmark -->
+    <div class="section">
+      <div class="section-title">Prueba de STT</div>
+      <h2>Reconocimiento de voz (Speech-to-Text)</h2>
+      <p class="desc">Graba un mensaje de voz para medir la latencia y calidad del servicio de transcripción del backend.</p>
+      <button class="btn-run" id="sttRecordBtn" onclick="toggleSTTRecording()">Grabar audio</button>
+      <div style="margin-top:14px" id="sttResult"></div>
+    </div>
+
+    <!-- Scan Benchmark -->
+    <div class="section">
+      <div class="section-title">Prueba de escaneo</div>
+      <h2>Parsing de factura / imagen</h2>
+      <p class="desc">Sube una imagen de factura o recibo para probar el pipeline de OCR + extracción de intención.</p>
+      <input type="file" id="scanFile" accept="image/jpeg,image/png,image/webp,image/gif,application/pdf" style="display:none" onchange="runScanBenchmark()">
+      <button class="btn-run" onclick="document.getElementById('scanFile').click()">Subir imagen o PDF</button>
+      <div style="margin-top:14px" id="scanResult"></div>
+    </div>
+
+    <!-- Parse text benchmark (text only, no voice) -->
+    <div class="section">
+      <div class="section-title">Prueba de parsing de texto</div>
+      <h2>Clasificación directa por texto</h2>
+      <p class="desc">Envía una frase libre al pipeline de parseo del backend y ve el resultado en tiempo real.</p>
+      <div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap">
+        <input id="parseInput" type="text" placeholder="ej: gasté 50 mil en mercado" style="flex:1;min-width:200px;padding:10px 14px;border:1px solid #E5E5EA;border-radius:10px;font-family:'Figtree',sans-serif;font-size:0.875rem;outline:none">
+        <button class="btn-run" onclick="runParseTest()">Parsear</button>
+      </div>
+      <div style="margin-top:14px" id="parseResult"></div>
+    </div>
+
+    <!-- Session Stats -->
+    <div class="section">
+      <div class="section-title">Estadísticas de sesión</div>
+      <h2>Resumen de actividad</h2>
+      <p class="desc">Totales acumulados de la sesión activa en el backend.</p>
+      <button class="btn-run" onclick="loadStats()">Cargar estadísticas</button>
+      <div style="margin-top:16px" id="statsResult"></div>
+    </div>
+
+    <div class="footer-row">
+      <button class="save-btn" id="saveBtn" onclick="saveResults()" disabled>Guardar en el estudio</button>
+      <div class="msg" id="saveMsg"></div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="js/api.js"></script>
+  <script>
+    const TEST_PHRASES = [
+      { input: "compré 10 mil de queso en el mercado",      expectedType: "expense" },
+      { input: "me gasté 50 mil en la droguería",           expectedType: "expense" },
+      { input: "le presté 30 mil a Juan",                   expectedType: "loan_given" },
+      { input: "Juan me prestó 20 mil",                     expectedType: "loan_received" },
+      { input: "me depositaron el sueldo, 1 millón 500",    expectedType: "income" },
+      { input: "pagué el arriendo, 450 mil",                expectedType: "expense" },
+      { input: "tanqueé la moto, 35 mil",                   expectedType: "expense" },
+      { input: "cobré al cliente 200 mil por el trabajo",   expectedType: "income" },
+    ];
+
+    // Provider accent colors — distinct but not "AI gradient" heavy
+    const PROVIDER_COLORS = {
+      openai:  { accent: '#0D9488', bg: '#0D948810' },
+      groq:    { accent: '#6366F1', bg: '#6366F110' },
+      default: { accent: '#F59E0B', bg: '#F59E0B10' },
+    };
+
+    let providers = [];
+    let benchmarkResults = [];
+
+    const name = session.getName();
+    if (name) document.getElementById('userName').textContent = name;
+
+    async function loadProviders() {
+      try {
+        const data = await fetch(`${BASE_URL}/instrument/benchmark/providers`).then(r => r.json());
+        providers = data.providers || [];
+        renderProviderTags();
+      } catch (e) {
+        document.getElementById('providersGrid').innerHTML =
+          '<span class="no-providers">No se pudo conectar al backend. Verifica que el servidor esté en línea.</span>';
+      }
+    }
+
+    function renderProviderTags() {
+      const grid = document.getElementById('providersGrid');
+      if (!providers.length) {
+        grid.innerHTML = '<span class="no-providers">Sin proveedores configurados. Agrega INSTRUMENT_OPENAI_KEY o INSTRUMENT_GROQ_KEY en el .env del backend.</span>';
+        return;
+      }
+      grid.innerHTML = providers.map(p => {
+        const c = PROVIDER_COLORS[p.id] || PROVIDER_COLORS.default;
+        return `<div class="provider-tag" style="border-color:${c.accent};background:${c.bg};color:${c.accent}">
+          <div class="dot" style="background:${c.accent}"></div>
+          ${p.label}
+        </div>`;
+      }).join('');
+    }
+
+    async function checkHealth() {
+      const btn = document.querySelector('button[onclick="checkHealth()"]');
+      btn.disabled = true;
+      try {
+        const result = await api.checkHealth();
+        document.getElementById('health-result').innerHTML = `
+          <div class="health-card">
+            <div class="health-dot ${result.success ? 'ok' : 'error'}"></div>
+            <div>
+              <div style="font-size:0.875rem;font-weight:600">${result.success ? 'Servidor en línea' : 'Servidor no disponible'}</div>
+              <div style="color:#64748B;font-size:0.8rem;margin-top:2px">Latencia: ${result.latency_ms} ms</div>
+            </div>
+          </div>`;
+      } catch (e) {
+        document.getElementById('health-result').innerHTML = `
+          <div class="health-card">
+            <div class="health-dot error"></div>
+            <div style="font-size:0.875rem;font-weight:600">No se pudo conectar al servidor</div>
+          </div>`;
+      }
+      btn.disabled = false;
+    }
+
+    async function runBenchmark() {
+      if (!providers.length) { alert('Sin proveedores configurados.'); return; }
+
+      const btn = document.getElementById('runBtn');
+      btn.disabled = true;
+      btn.textContent = 'Ejecutando…';
+      benchmarkResults = [];
+      document.getElementById('progressFill').style.width = '0%';
+      document.getElementById('summaryArea').innerHTML = '';
+
+      const providerHeaders = providers.map(p => {
+        const c = PROVIDER_COLORS[p.id] || PROVIDER_COLORS.default;
+        return `<th style="color:${c.accent}">${p.label}</th>`;
+      }).join('');
+
+      document.getElementById('tableArea').innerHTML = `
+        <table class="comparison-table" id="resultsTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Frase</th>
+              <th>Esperado</th>
+              ${providerHeaders}
+            </tr>
+          </thead>
+          <tbody id="resultsBody"></tbody>
+        </table>`;
+
+      const tbody = document.getElementById('resultsBody');
+
+      for (let i = 0; i < TEST_PHRASES.length; i++) {
+        const phrase = TEST_PHRASES[i];
+        document.getElementById('progressFill').style.width = ((i / TEST_PHRASES.length) * 100).toFixed(0) + '%';
+
+        const rowId = `row_${i}`;
+        const pendingCells = providers.map(() => `<td class="badge-pending">—</td>`).join('');
+        tbody.innerHTML += `
+          <tr id="${rowId}">
+            <td>${i + 1}</td>
+            <td style="max-width:220px;word-break:break-word">"${phrase.input}"</td>
+            <td><code>${phrase.expectedType}</code></td>
+            ${pendingCells}
+          </tr>`;
+
+        const providerResults = await Promise.all(
+          providers.map(async p => {
+            try {
+              const r = await api.runLLMBenchmark(phrase.input, p.id);
+              const gotType = r.parsed_intent?.type || 'unknown';
+              const correct = gotType === phrase.expectedType;
+              return { provider: p.id, success: r.success, correct, latency_ms: r.latency_ms, intent: r.parsed_intent, error: r.error };
+            } catch (e) {
+              return { provider: p.id, success: false, correct: false, latency_ms: 0, intent: null, error: e.message };
+            }
+          })
+        );
+
+        const fastestMs = Math.min(...providerResults.filter(r => r.latency_ms > 0).map(r => r.latency_ms));
+
+        const row = document.getElementById(rowId);
+        const baseCells = `
+          <td>${i + 1}</td>
+          <td style="max-width:220px;word-break:break-word">"${phrase.input}"</td>
+          <td><code>${phrase.expectedType}</code></td>`;
+
+        const resultCells = providerResults.map(r => {
+          const c = PROVIDER_COLORS[r.provider] || PROVIDER_COLORS.default;
+          const isFastest = r.latency_ms === fastestMs && r.latency_ms > 0;
+          const gotType = r.intent?.type || (r.error ? 'error' : 'unknown');
+          const intentSummary = r.intent
+            ? `type=${r.intent.type}, amount=${r.intent.amount ?? '?'}`
+            : r.error?.slice(0, 60) || '—';
+          return `
+            <td>
+              <div class="provider-cell">
+                <span class="${r.correct ? 'badge-ok' : 'badge-err'}">${r.correct ? 'OK' : 'FAIL'} ${gotType}</span>
+                ${isFastest ? `<span class="winner-chip">más rápido</span>` : ''}
+                <div class="intent-line">${intentSummary}</div>
+                <span class="latency-chip" style="color:${c.accent}">${r.latency_ms > 0 ? r.latency_ms + ' ms' : '—'}</span>
+              </div>
+            </td>`;
+        }).join('');
+
+        row.innerHTML = baseCells + resultCells;
+
+        providerResults.forEach(r => {
+          benchmarkResults.push({
+            test_name: `llm_${r.provider}`,
+            latency_ms: r.latency_ms,
+            success: r.correct,
+            input_text: phrase.input,
+            parsed_intent: JSON.stringify(r.intent),
+            error_message: r.error || '',
+          });
+        });
+      }
+
+      document.getElementById('progressFill').style.width = '100%';
+      btn.disabled = false;
+      btn.textContent = 'Volver a ejecutar';
+
+      renderSummary();
+      if (session.getId()) document.getElementById('saveBtn').disabled = false;
+    }
+
+    function renderSummary() {
+      const summaryCards = providers.map(p => {
+        const c = PROVIDER_COLORS[p.id] || PROVIDER_COLORS.default;
+        const pResults = benchmarkResults.filter(r => r.test_name === `llm_${p.id}`);
+        const correct = pResults.filter(r => r.success).length;
+        const latencies = pResults.filter(r => r.latency_ms > 0).map(r => r.latency_ms);
+        const avg = latencies.length ? Math.round(latencies.reduce((a,b)=>a+b,0)/latencies.length) : '—';
+        const min = latencies.length ? Math.min(...latencies) : '—';
+        const accuracy = pResults.length ? Math.round((correct / pResults.length) * 100) : 0;
+
+        return `
+          <div class="provider-summary" style="border-color:${c.accent}44">
+            <h3 style="color:${c.accent}">${p.label}</h3>
+            <div class="stats-row">
+              <div class="stat">
+                <div class="stat-val" style="color:${c.accent}">${accuracy}%</div>
+                <div class="stat-label">Accuracy</div>
+              </div>
+              <div class="stat">
+                <div class="stat-val">${avg}ms</div>
+                <div class="stat-label">Promedio</div>
+              </div>
+              <div class="stat">
+                <div class="stat-val">${min}ms</div>
+                <div class="stat-label">Mínimo</div>
+              </div>
+              <div class="stat">
+                <div class="stat-val">${correct}/${pResults.length}</div>
+                <div class="stat-label">Correctas</div>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+
+      document.getElementById('summaryArea').innerHTML = `
+        <div class="summary-outer" style="grid-template-columns:repeat(${Math.min(providers.length, 2)},1fr);margin-bottom:20px">
+          ${summaryCards}
+        </div>`;
+    }
+
+    async function saveResults() {
+      const sessionId = session.getId();
+      if (!sessionId) { alert('Sin sesión activa.'); return; }
+
+      const btn = document.getElementById('saveBtn');
+      btn.disabled = true;
+      btn.textContent = 'Guardando…';
+
+      try {
+        for (const result of benchmarkResults) {
+          await api.submitBenchmark(sessionId, result);
+        }
+        document.getElementById('saveMsg').className = 'msg success';
+        document.getElementById('saveMsg').textContent = 'Resultados guardados.';
+        btn.textContent = 'Guardado';
+        session.clear();
+      } catch (e) {
+        document.getElementById('saveMsg').className = 'msg error';
+        document.getElementById('saveMsg').textContent = 'Error al guardar.';
+        btn.disabled = false;
+        btn.textContent = 'Guardar en el estudio';
+      }
+    }
+
+    // ── PDF → JPEG conversion (shared) ────────────────────────────────────────
+    async function pdfToImageBlobs(file) {
+      const pdfjsLib = window['pdfjs-dist/build/pdf'];
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const pageCount = Math.min(pdf.numPages, 5);
+      const blobs = [];
+      for (let i = 1; i <= pageCount; i++) {
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 2.0 });
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+        const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.85));
+        blobs.push(blob);
+      }
+      return blobs;
+    }
+
+    // ── STT Benchmark ─────────────────────────────────────────────────────────
+    let sttRecorder = null, sttChunks = [], sttRecording = false;
+
+    async function toggleSTTRecording() {
+      if (sttRecording) {
+        sttRecording = false;
+        sttRecorder.stop();
+        document.getElementById('sttRecordBtn').textContent = 'Grabar audio';
+        document.getElementById('sttRecordBtn').disabled = false;
+        return;
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        sttChunks = [];
+        const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus'
+          : MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '';
+        sttRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+        sttRecorder.ondataavailable = e => { if (e.data.size > 0) sttChunks.push(e.data); };
+        sttRecorder.onstop = async () => {
+          stream.getTracks().forEach(t => t.stop());
+          const blob = new Blob(sttChunks, { type: sttRecorder.mimeType || 'audio/webm' });
+          const el = document.getElementById('sttResult');
+          el.innerHTML = '<div style="color:#64748B;font-size:0.84rem">Transcribiendo…</div>';
+          const t0 = performance.now();
+          try {
+            const data = await api.transcribe(blob);
+            const lat = Math.round(performance.now() - t0);
+            el.innerHTML = `
+              <div class="health-card">
+                <div class="health-dot ok"></div>
+                <div>
+                  <div style="font-size:0.875rem;font-weight:600">"${data.transcript || '(vacío)'}"</div>
+                  <div style="color:#64748B;font-size:0.8rem;margin-top:2px">Latencia STT: ${lat} ms</div>
+                </div>
+              </div>`;
+          } catch (e) {
+            el.innerHTML = `<div style="color:#F43F5E;font-size:0.84rem">Error: ${e.message}</div>`;
+          }
+          document.getElementById('sttRecordBtn').textContent = 'Grabar audio';
+          document.getElementById('sttRecordBtn').disabled = false;
+        };
+        sttRecorder.start();
+        sttRecording = true;
+        document.getElementById('sttRecordBtn').textContent = 'Detener grabación';
+      } catch (e) {
+        alert('No se pudo acceder al micrófono.');
+      }
+    }
+
+    // ── Scan Benchmark ─────────────────────────────────────────────────────────
+    async function runScanBenchmark() {
+      const input = document.getElementById('scanFile');
+      const file = input.files[0];
+      if (!file) return;
+      const el = document.getElementById('scanResult');
+      el.innerHTML = '<div style="color:#64748B;font-size:0.84rem">Procesando…</div>';
+      const formData = new FormData();
+      if (file.type === 'application/pdf') {
+        el.innerHTML = '<div style="color:#64748B;font-size:0.84rem">Convirtiendo PDF a imágenes…</div>';
+        try {
+          const blobs = await pdfToImageBlobs(file);
+          blobs.forEach((b, i) => formData.append('file', b, `page_${i+1}.jpg`));
+        } catch(e) { el.innerHTML = `<div style="color:#F43F5E;font-size:0.84rem">Error PDF: ${e.message}</div>`; input.value=''; return; }
+      } else {
+        formData.append('file', file);
+      }
+      el.innerHTML = '<div style="color:#64748B;font-size:0.84rem">Analizando…</div>';
+      const t0 = performance.now();
+      try {
+        const data = await api.scanInvoice(formData);
+        const lat = Math.round(performance.now() - t0);
+        const intent = (data.parsed_intents && data.parsed_intents[0]) || data.parsed_intent || {};
+        const ok = data.success && !!intent.type;
+        el.innerHTML = `
+          <div class="health-card" style="flex-direction:column;align-items:flex-start;gap:8px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="health-dot ${ok ? 'ok' : 'error'}"></div>
+              <div style="font-size:0.875rem;font-weight:600">${ok ? 'Scan exitoso' : 'Sin resultado'} · ${lat} ms</div>
+            </div>
+            ${ok ? `<div class="intent-line">type=${intent.type || '?'}, amount=${intent.amount ?? '?'}, desc=${intent.description || '?'}</div>` : ''}
+          </div>`;
+      } catch (e) {
+        el.innerHTML = `<div style="color:#F43F5E;font-size:0.84rem">Error: ${e.message}</div>`;
+      }
+      input.value = '';
+    }
+
+    // ── Parse Text Benchmark ───────────────────────────────────────────────────
+    async function runParseTest() {
+      const text = document.getElementById('parseInput').value.trim();
+      if (!text) return;
+      const el = document.getElementById('parseResult');
+      el.innerHTML = '<div style="color:#64748B;font-size:0.84rem">Procesando…</div>';
+      const sessionId = session.getId() ? parseInt(session.getId()) : 0;
+      const t0 = performance.now();
+      try {
+        const data = await api.parse(text, sessionId);
+        const lat = Math.round(performance.now() - t0);
+        const intent = data.parsed_intent || {};
+        const ok = data.success;
+        el.innerHTML = `
+          <div class="health-card" style="flex-direction:column;align-items:flex-start;gap:8px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="health-dot ${ok ? 'ok' : 'error'}"></div>
+              <div style="font-size:0.875rem;font-weight:600">${ok ? 'OK' : 'Sin intención'} · ${lat} ms</div>
+            </div>
+            ${ok ? `<div class="intent-line">type=${intent.type || '?'}, amount=${intent.amount ?? '?'}, desc=${intent.description || '?'}, cat=${intent.category_name || '?'}</div>` : ''}
+          </div>`;
+      } catch (e) {
+        el.innerHTML = `<div style="color:#F43F5E;font-size:0.84rem">Error: ${e.message}</div>`;
+      }
+    }
+
+    // ── Session Stats ──────────────────────────────────────────────────────────
+    async function loadStats() {
+      const sessionId = session.getId();
+      if (!sessionId) { document.getElementById('statsResult').innerHTML = '<div style="color:#F43F5E;font-size:0.84rem">Sin sesión activa. Ve a la página de inicio.</div>'; return; }
+      try {
+        const s = await api.getStats(sessionId);
+        document.getElementById('statsResult').innerHTML = `
+          <div class="stats-row" style="gap:28px;flex-wrap:wrap">
+            <div class="stat"><div class="stat-val" style="color:#0D9488">${s.transactions_count ?? 0}</div><div class="stat-label">Transacciones</div></div>
+            <div class="stat"><div class="stat-val" style="color:#6366F1">${s.benchmarks_count ?? 0}</div><div class="stat-label">Benchmarks</div></div>
+            <div class="stat"><div class="stat-val" style="color:#F59E0B">${s.email_drafts_count ?? 0}</div><div class="stat-label">Emails detectados</div></div>
+            <div class="stat"><div class="stat-val">${s.avg_latency_ms ? Math.round(s.avg_latency_ms) + ' ms' : '—'}</div><div class="stat-label">Latencia promedio</div></div>
+          </div>`;
+      } catch (e) {
+        document.getElementById('statsResult').innerHTML = `<div style="color:#F43F5E;font-size:0.84rem">Error: ${e.message}</div>`;
+      }
+    }
+
+    loadProviders();
+  </script>
+</body>
+</html>
