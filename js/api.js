@@ -1,19 +1,47 @@
 // api.js — Shared API client for the Monetra thesis instrument.
+
 const BASE_URL = 'https://api.monetra.lat';
+const DEFAULT_TIMEOUT_MS = 15000;
+const MAX_RETRIES = 2;
+
+/**
+ * Wrapper around fetch with timeout and automatic retry on network errors.
+ * @param {string} url
+ * @param {RequestInit} options
+ * @param {number} retries
+ * @returns {Promise<Response>}
+ */
+async function fetchWithRetry(url, options = {}, retries = MAX_RETRIES) {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
+
+    try {
+      const res = await fetch(url, { ...options, signal: controller.signal });
+      clearTimeout(timeout);
+      return res;
+    } catch (err) {
+      clearTimeout(timeout);
+      if (attempt === retries) throw err;
+      // Exponential backoff: 500ms, 1000ms
+      await new Promise(r => setTimeout(r, 500 * 2 ** attempt));
+    }
+  }
+}
 
 const api = {
   async createSession(name, sessionType, notes = '') {
-    const res = await fetch(`${BASE_URL}/instrument/sessions`, {
+    const res = await fetchWithRetry(`${BASE_URL}/instrument/sessions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, session_type: sessionType, notes }),
     });
     if (!res.ok) throw new Error(`Error ${res.status}`);
-    return res.json(); // { id }
+    return res.json();
   },
 
   async submitSurvey(sessionId, responses) {
-    const res = await fetch(`${BASE_URL}/instrument/sessions/${sessionId}/survey`, {
+    const res = await fetchWithRetry(`${BASE_URL}/instrument/sessions/${sessionId}/survey`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ responses }),
@@ -23,7 +51,7 @@ const api = {
   },
 
   async submitBenchmark(sessionId, result) {
-    const res = await fetch(`${BASE_URL}/instrument/sessions/${sessionId}/benchmark`, {
+    const res = await fetchWithRetry(`${BASE_URL}/instrument/sessions/${sessionId}/benchmark`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(result),
@@ -36,17 +64,17 @@ const api = {
     const body = { text, provider };
     if (originalText) body.original_text = originalText;
     if (originalIntent) body.original_intent = originalIntent;
-    const res = await fetch(`${BASE_URL}/instrument/benchmark/llm`, {
+    const res = await fetchWithRetry(`${BASE_URL}/instrument/benchmark/llm`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
     if (!res.ok) throw new Error(`Error ${res.status}`);
-    return res.json(); // { success, provider, latency_ms, parsed_intent?, error? }
+    return res.json();
   },
 
   async saveTransaction(sessionId, tx) {
-    const res = await fetch(`${BASE_URL}/instrument/sessions/${sessionId}/transactions`, {
+    const res = await fetchWithRetry(`${BASE_URL}/instrument/sessions/${sessionId}/transactions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(tx),
@@ -56,91 +84,91 @@ const api = {
   },
 
   async transcribe(audioBlob) {
-    const res = await fetch(`${BASE_URL}/instrument/stt`, {
+    const res = await fetchWithRetry(`${BASE_URL}/instrument/stt`, {
       method: 'POST',
       headers: { 'Content-Type': audioBlob.type || 'audio/webm' },
       body: audioBlob,
     });
     if (!res.ok) throw new Error(`STT error ${res.status}`);
-    return res.json(); // { transcript }
+    return res.json();
   },
 
   async getTransactions(sessionId) {
-    const res = await fetch(`${BASE_URL}/instrument/sessions/${sessionId}/transactions`);
+    const res = await fetchWithRetry(`${BASE_URL}/instrument/sessions/${sessionId}/transactions`);
     if (!res.ok) throw new Error(`Error ${res.status}`);
-    return res.json(); // { transactions }
+    return res.json();
   },
 
   async getResults() {
-    const res = await fetch(`${BASE_URL}/instrument/results`);
+    const res = await fetchWithRetry(`${BASE_URL}/instrument/results`);
     if (!res.ok) throw new Error(`Error ${res.status}`);
-    return res.json(); // { sessions, surveys, benchmarks }
+    return res.json();
   },
 
   async checkHealth() {
     const start = performance.now();
-    const res = await fetch(`${BASE_URL}/health`);
+    const res = await fetchWithRetry(`${BASE_URL}/health`);
     const latency = Math.round(performance.now() - start);
     return { success: res.ok, latency_ms: latency };
   },
 
   async parse(text, sessionId = 0, provider = '') {
-    const res = await fetch(`${BASE_URL}/instrument/parse`, {
+    const res = await fetchWithRetry(`${BASE_URL}/instrument/parse`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text, session_id: sessionId, provider }),
     });
     if (!res.ok) throw new Error(`Error ${res.status}`);
-    return res.json(); // { success, parsed_intent, latency_ms }
+    return res.json();
   },
 
   async scanInvoice(formData) {
-    const res = await fetch(`${BASE_URL}/instrument/scan`, {
+    const res = await fetchWithRetry(`${BASE_URL}/instrument/scan`, {
       method: 'POST',
-      body: formData, // multipart/form-data with field "file"
+      body: formData,
     });
     if (!res.ok) throw new Error(`Error ${res.status}`);
-    return res.json(); // { success, parsed_intent, latency_ms }
+    return res.json();
   },
 
   async tts(text) {
-    const res = await fetch(`${BASE_URL}/instrument/tts`, {
+    const res = await fetchWithRetry(`${BASE_URL}/instrument/tts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text }),
     });
     if (!res.ok) throw new Error(`TTS error ${res.status}`);
-    return res.blob(); // audio/mpeg blob
+    return res.blob();
   },
 
   async getStats(sessionId) {
-    const res = await fetch(`${BASE_URL}/instrument/sessions/${sessionId}/stats`);
+    const res = await fetchWithRetry(`${BASE_URL}/instrument/sessions/${sessionId}/stats`);
     if (!res.ok) throw new Error(`Error ${res.status}`);
-    return res.json(); // { transactions_count, email_drafts_count, benchmarks_count, avg_latency_ms }
+    return res.json();
   },
 
   async startOutlookOAuth(sessionId) {
-    const res = await fetch(`${BASE_URL}/instrument/sessions/${sessionId}/email/link-outlook`, {
+    const res = await fetchWithRetry(`${BASE_URL}/instrument/sessions/${sessionId}/email/link-outlook`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
     });
     if (!res.ok) throw new Error(`Error ${res.status}`);
-    return res.json(); // { auth_url }
+    return res.json();
   },
 
   async claimGmail(sessionId) {
-    const res = await fetch(`${BASE_URL}/instrument/sessions/${sessionId}/email/claim-gmail`, {
+    const res = await fetchWithRetry(`${BASE_URL}/instrument/sessions/${sessionId}/email/claim-gmail`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
     });
     if (!res.ok) throw new Error(`Error ${res.status}`);
-    return res.json(); // { email_address }
+    return res.json();
   },
 
   async getEmailDrafts(sessionId) {
-    const res = await fetch(`${BASE_URL}/instrument/sessions/${sessionId}/email/drafts`);
+    const res = await fetchWithRetry(`${BASE_URL}/instrument/sessions/${sessionId}/email/drafts`);
     if (!res.ok) throw new Error(`Error ${res.status}`);
-    return res.json(); // { drafts: [...] }
+    return res.json();
   },
 };
 
@@ -154,5 +182,9 @@ const session = {
   getId() { return sessionStorage.getItem('instrument_session_id'); },
   getName() { return sessionStorage.getItem('instrument_session_name'); },
   getType() { return sessionStorage.getItem('instrument_session_type'); },
-  clear() { sessionStorage.removeItem('instrument_session_id'); sessionStorage.removeItem('instrument_session_name'); sessionStorage.removeItem('instrument_session_type'); },
+  clear() {
+    sessionStorage.removeItem('instrument_session_id');
+    sessionStorage.removeItem('instrument_session_name');
+    sessionStorage.removeItem('instrument_session_type');
+  },
 };
