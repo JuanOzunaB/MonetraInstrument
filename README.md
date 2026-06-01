@@ -7,126 +7,225 @@ generated_by: archai-docgen
 
 ## Descripción del servicio
 
-**monetra-instrument** es una aplicación web interactiva desarrollada con React que proporciona una plataforma de evaluación y análisis de datos. El sistema incluye múltiples interfaces especializadas:
+**monetra-instrument** es una aplicación web de evaluación y análisis desarrollada con React que proporciona una plataforma integral para gestión de métricas, evaluaciones y visualización de datos. El sistema está diseñado como una Single Page Application (SPA) que integra múltiples módulos especializados:
 
-- **Landing Page**: Página de inicio para presentación del servicio
-- **Dashboard**: Panel principal de control y visualización de datos
-- **Benchmark**: Herramienta de comparación y análisis de métricas
-- **Expert Evaluation**: Interfaz para evaluaciones realizadas por expertos
-- **User Evaluation**: Sistema de evaluación para usuarios finales
-- **OAuth Callback**: Gestión de autenticación mediante OAuth
+- **Landing Page**: Página de bienvenida e información del servicio
+- **Dashboard**: Panel central de control con métricas y visualizaciones en tiempo real
+- **Benchmark**: Módulo de comparación y análisis de rendimiento mediante métricas cuantitativas
+- **Expert Evaluation**: Sistema de evaluación cualitativa para perfiles especializados
+- **User Evaluation**: Interfaz de evaluación orientada a usuarios finales
+- **OAuth Callback**: Handler para flujos de autenticación OAuth 2.0
 
-El proyecto utiliza Chart.js para visualización avanzada de datos y React Router para navegación entre las diferentes secciones. Incluye servicios centralizados para gestión de API y sesiones de usuario.
+La aplicación utiliza Chart.js para renderizado de gráficos interactivos y React Router para navegación cliente-side sin recarga de página. Incluye servicios centralizados para comunicación con APIs backend y gestión de sesiones de usuario.
 
 ## Tech stack
 
-- **Frontend Framework**: React 18.3.1
-- **Build Tool**: Vite 6.0.6
-- **Routing**: React Router DOM 6.28.0
-- **Visualización de Datos**: Chart.js 4.4.0
-- **Lenguaje**: JavaScript (ES Modules)
-- **Bundler**: Vite con plugin de React
+**Frontend Core**:
+- React 18.3.1 (biblioteca UI con hooks)
+- React DOM 18.3.1
+- JavaScript ES Modules
+
+**Routing & Navigation**:
+- React Router DOM 6.28.0
+
+**Visualización de Datos**:
+- Chart.js 4.4.0
+
+**Build & Development Tools**:
+- Vite 6.0.6 (bundler y dev server)
+- @vitejs/plugin-react 4.3.4
+
+**Arquitectura**:
+- SPA (Single Page Application)
+- Component-based architecture
+- Service layer pattern (API y sesión)
 
 ## Prerequisitos
 
-- **Node.js**: versión 16.x o superior (recomendado 18.x LTS)
-- **npm**: versión 8.x o superior (incluido con Node.js)
-- Navegador web moderno con soporte para ES6+ (Chrome, Firefox, Safari, Edge)
-- Conexión a internet para instalación de dependencias
+**Software requerido**:
+- **Node.js**: v16.x o superior (recomendado v18.x LTS o v20.x)
+- **npm**: v8.x o superior (incluido con Node.js)
+- **Git**: Para clonar el repositorio
+
+**Navegador web moderno** con soporte para:
+- ES6+ (ECMAScript 2015+)
+- Fetch API
+- LocalStorage/SessionStorage
+- CSS3 y HTML5
+
+**Opcionales**:
+- Editor de código (VS Code, WebStorm, etc.)
+- Extensión React Developer Tools para debugging
 
 ## Cómo correr localmente
 
-1. **Clonar el repositorio**:
-   ```bash
-   git clone <repository-url>
-   cd monetra-instrument
-   ```
+### Instalación inicial
 
-2. **Instalar dependencias**:
-   ```bash
-   npm install
-   ```
+```bash
+# 1. Clonar el repositorio
+git clone <repository-url>
+cd monetra-instrument
 
-3. **Iniciar el servidor de desarrollo**:
-   ```bash
-   npm run dev
-   ```
+# 2. Instalar dependencias
+npm install
+```
 
-4. **Acceder a la aplicación**:
-   - Abrir el navegador en `http://localhost:5173` (puerto por defecto de Vite)
-   - Vite mostrará la URL exacta en la terminal
+### Configuración de variables de entorno
 
-5. **Build de producción** (opcional):
-   ```bash
-   npm run build
-   npm run preview
-   ```
+```bash
+# 3. Crear archivo de variables de entorno
+cp .env.example .env.local
+# Editar .env.local con tus credenciales (ver sección siguiente)
+```
+
+### Ejecución en modo desarrollo
+
+```bash
+# 4. Iniciar servidor de desarrollo
+npm run dev
+```
+
+La aplicación estará disponible en:
+- **URL**: `http://localhost:5173` (puerto por defecto)
+- Vite mostrará la URL exacta en la terminal
+- Hot Module Replacement (HMR) habilitado para recarga automática
+
+### Build y preview de producción
+
+```bash
+# Compilar para producción
+npm run build
+
+# Previsualizar build localmente
+npm run preview
+```
+
+El build se generará en la carpeta `dist/` lista para deployment.
 
 ## Variables de entorno requeridas
 
-Basándose en la estructura del proyecto, las siguientes variables de entorno son potencialmente necesarias:
+Crear un archivo `.env.local` en la raíz del proyecto con las siguientes variables:
 
 ```env
-# API Configuration
-VITE_API_BASE_URL=<url_del_backend_api>
-VITE_API_TIMEOUT=<timeout_en_ms>
+# === API Backend Configuration ===
+VITE_API_BASE_URL=https://api.example.com
+VITE_API_TIMEOUT=30000
 
-# OAuth Configuration
-VITE_OAUTH_CLIENT_ID=<client_id>
-VITE_OAUTH_REDIRECT_URI=<redirect_uri>
-VITE_OAUTH_PROVIDER=<provider_name>
+# === OAuth 2.0 Configuration ===
+VITE_OAUTH_CLIENT_ID=your_client_id_here
+VITE_OAUTH_REDIRECT_URI=http://localhost:5173/oauth/callback
+VITE_OAUTH_PROVIDER=google
+VITE_OAUTH_AUTHORIZATION_URL=https://accounts.google.com/o/oauth2/v2/auth
+VITE_OAUTH_SCOPE=openid profile email
 
-# Environment
-VITE_ENV=<development|production>
+# === Application Environment ===
+VITE_ENV=development
+VITE_APP_NAME=Monetra Instrument
+VITE_LOG_LEVEL=debug
+
+# === Feature Flags (opcional) ===
+VITE_ENABLE_BENCHMARK=true
+VITE_ENABLE_EXPERT_EVAL=true
+VITE_ENABLE_USER_EVAL=true
 ```
 
-**Nota**: Crear un archivo `.env.local` en la raíz del proyecto con estas variables. Vite requiere el prefijo `VITE_` para exponer variables al cliente.
+**Importante**: 
+- Vite requiere el prefijo `VITE_` para exponer variables al código cliente
+- No commitear archivos `.env.local` al repositorio
+- Para producción, configurar estas variables en el servidor/plataforma de hosting
 
 ## Dependencias externas
 
-### APIs y Servicios Backend
-- Servicio API REST (configurado en `src/services/api.js`)
-- Proveedor OAuth para autenticación de usuarios
-- Posible servicio de backend para almacenamiento de evaluaciones y benchmarks
+### Backend API Services
+- **REST API Backend**: Servicio principal para lógica de negocio (configurado en `src/services/api.js`)
+  - Endpoints para evaluaciones, benchmarks y datos del dashboard
+  - Autenticación y autorización de usuarios
+- **Proveedor OAuth 2.0**: Google, GitHub, Auth0 u otro proveedor configurado
+  - Gestión de tokens de acceso
+  - Refresh token handling
 
-### Bibliotecas de Terceros
-- **chart.js**: Renderizado de gráficos y visualizaciones
-- **react-router-dom**: Sistema de enrutamiento SPA
+### Librerías de Terceros (npm)
+- **Chart.js**: Renderizado de gráficos canvas-based (líneas, barras, tortas, etc.)
+- **React Router DOM**: Sistema de routing declarativo para SPA
 
-### CDNs y Recursos Externos
-- Ninguna dependencia externa de CDN detectada (todas las dependencias se instalan localmente vía npm)
+### Servicios de Infraestructura
+- **CDN** (en producción): Posible uso de CDN para assets estáticos
+- **Session Storage**: Almacenamiento local de sesión en navegador
+- **Cookies**: Para tokens de autenticación (si aplica)
+
+### Dependencias del Sistema
+- No requiere instalación de software adicional más allá de Node.js
 
 ## Scripts disponibles
 
 ```bash
-# Iniciar servidor de desarrollo con hot-reload
+# Desarrollo: Inicia servidor con hot-reload en puerto 5173
 npm run dev
 
-# Compilar aplicación para producción
+# Build: Compila y optimiza para producción en carpeta dist/
 npm run build
 
-# Previsualizar build de producción localmente
+# Preview: Sirve el build de producción localmente
 npm run preview
 ```
 
-### Detalles de cada script:
-- **`dev`**: Inicia el servidor de desarrollo de Vite en modo watch con HMR (Hot Module Replacement)
-- **`build`**: Genera la versión optimizada para producción en la carpeta `dist/`
-- **`preview`**: Sirve la versión de producción localmente para testing previo al deploy
+### Descripción detallada:
+
+| Script | Comando | Descripción |
+|--------|---------|-------------|
+| **dev** | `vite` | Inicia servidor de desarrollo con HMR (Hot Module Replacement), source maps y modo watch. Puerto por defecto: 5173 |
+| **build** | `vite build` | Compila aplicación optimizada para producción: minificación, tree-shaking, code splitting, hash de assets |
+| **preview** | `vite preview` | Sirve el build de producción localmente para testing pre-deployment en puerto 4173 |
+
+### Workflow recomendado:
+
+```bash
+# Desarrollo diario
+npm run dev
+
+# Antes de crear PR
+npm run build  # Verificar que compila sin errores
+
+# Testing de build de producción
+npm run build && npm run preview
+```
 
 ## Limitaciones y Supuestos
 
 ### Limitaciones Conocidas:
-1. **Documentación API**: No se incluye documentación detallada del contrato de API en el repositorio actual
-2. **Variables de Entorno**: Las variables de entorno específicas no están documentadas en archivos `.env.example`
-3. **Testing**: No se detectan scripts de testing (Jest, Vitest, etc.) en el package.json
-4. **Configuración OAuth**: Los detalles específicos del proveedor OAuth no están explícitos en los archivos analizados
+
+1. **Documentación de API incompleta**: No se incluye especificación OpenAPI/Swagger del contrato de API backend
+2. **Sin tests automatizados**: No se detectan frameworks de testing (Jest, Vitest, React Testing Library) en package.json
+3. **Variables de entorno no documentadas**: Falta archivo `.env.example` con template de configuración
+4. **Sin manejo de errores global**: No se detecta implementación de Error Boundary o servicio centralizado de logging
+5. **Configuración OAuth genérica**: Los detalles específicos del proveedor OAuth no están explícitos en el código analizado
+6. **Accesibilidad no verificada**: No hay evidencia de testing o compliance con WCAG
+7. **Sin linting configurado**: No se detecta ESLint o Prettier en el proyecto
 
 ### Supuestos Asumidos:
-1. Se asume que existe un backend API REST separado que maneja la lógica de negocio
-2. Se presume autenticación mediante OAuth basándose en la página `OAuthCallback.jsx`
-3. El archivo `INSTRUMENTO_GUIA.md` puede contener documentación adicional específica del dominio
-4. Los archivos HTML estáticos (`benchmark.html`, `dashboard.html`, etc.) pueden ser versiones legacy o plantillas
-5. La aplicación está diseñada como SPA (Single Page Application) con múltiples rutas
 
-**Nota**: Esta documentación fue generada automáticamente basándose en el análisis estático del repositorio. Se recomienda validar y complementar con información específica del equipo de desarrollo.
+1. **Backend separado**: Se asume la existencia de un backend REST API independiente que maneja lógica de negocio y persistencia
+2. **Autenticación OAuth 2.0**: Basándose en `OAuthCallback.jsx`, se presume implementación de flujo OAuth estándar
+3. **SPA con routing cliente**: La aplicación funciona completamente en el navegador con React Router manejando navegación
+4. **Archivos HTML legacy**: Los archivos `.html` en raíz (`benchmark.html`, `dashboard.html`, etc.) pueden ser:
+   - Versiones anteriores pre-React
+   - Templates para SSR (no implementado actualmente)
+   - Páginas de fallback
+5. **INSTRUMENTO_GUIA.md**: Se asume que contiene documentación específica del dominio o reglas de negocio
+6. **Gestión de sesión**: El servicio `session.js` probablemente maneja tokens JWT y estado de autenticación
+7. **API RESTful**: Se presume que el backend sigue convenciones REST estándar
+8. **Deployment como SPA estática**: La aplicación se puede deployar en hosting estático (Netlify, Vercel, S3+CloudFront)
+
+### Recomendaciones para Mejoras:
+
+- [ ] Agregar suite de tests (Vitest + React Testing Library)
+- [ ] Documentar contrato de API con OpenAPI 3.0
+- [ ] Implementar Error Boundaries y logging centralizado
+- [ ] Agregar `.env.example` con todas las variables necesarias
+- [ ] Configurar ESLint + Prettier para consistencia de código
+- [ ] Implementar CI/CD pipeline (GitHub Actions, GitLab CI)
+- [ ] Agregar documentación de arquitectura y diagramas de flujo
+
+---
+
+**Nota**: Esta documentación fue generada automáticamente mediante análisis estático del repositorio. Se recomienda validar la información con el equipo de desarrollo y complementar con detalles específicos del contexto de negocio.
