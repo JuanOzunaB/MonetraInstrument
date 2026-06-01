@@ -1,1 +1,0 @@
-# monetra_instrument
